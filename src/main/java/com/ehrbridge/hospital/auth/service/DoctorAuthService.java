@@ -41,14 +41,11 @@ public class DoctorAuthService {
     }
 
     public LoginResponse login(LoginRequest request) {
-        System.out.println(request.getEmail());
-        System.out.println(request.getPassword());
-        var user = doctorRepository.findByEmailAddress(request.getEmail()).orElseThrow();
-        System.out.println(user.getEmailAddress());
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        System.out.println("learn");
 
+        var user = doctorRepository.findByEmailAddress(request.getEmail()).orElseThrow();
         var token = jwtService.generateToken(user);
+
 
         return LoginResponse.builder().token(token).message("Login Successful").build();
     }

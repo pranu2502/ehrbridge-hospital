@@ -29,7 +29,6 @@ public class DoctorController {
         {
             return ResponseEntity.ok(loginResponse);
         }
-        System.out.println("chekkkkkk");
         return new ResponseEntity<LoginResponse>(loginResponse, HttpStatusCode.valueOf(403) );
     }
 }
