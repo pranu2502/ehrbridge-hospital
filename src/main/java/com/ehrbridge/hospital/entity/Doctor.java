@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.auth.entity;
+package com.ehrbridge.hospital.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,7 +40,7 @@ public class Doctor implements UserDetails {
 
     @Override
     public String getPassword() {
-        return null;
+        return password;
     }
 
     @Override

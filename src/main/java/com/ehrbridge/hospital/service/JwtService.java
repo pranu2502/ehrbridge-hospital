@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.auth.service;
+package com.ehrbridge.hospital.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

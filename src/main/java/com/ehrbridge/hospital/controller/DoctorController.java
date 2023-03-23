@@ -1,7 +1,8 @@
-package com.ehrbridge.hospital.auth.controller;
+package com.ehrbridge.hospital.controller;
 
-import com.ehrbridge.hospital.auth.dto.*;
-import com.ehrbridge.hospital.auth.service.DoctorAuthService;
+import com.ehrbridge.hospital.dto.*;
+import com.ehrbridge.hospital.service.DoctorAuthService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

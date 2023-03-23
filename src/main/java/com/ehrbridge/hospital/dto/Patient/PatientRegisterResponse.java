@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.auth.dto;
+package com.ehrbridge.hospital.dto.Patient;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class RegisterResponse {
-    private String token;
-    private String message;
+public class PatientRegisterResponse {
+    private String msg;
 }

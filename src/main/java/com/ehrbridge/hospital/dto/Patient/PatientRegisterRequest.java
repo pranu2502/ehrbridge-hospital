@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.auth.dto;
+package com.ehrbridge.hospital.dto.Patient;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,15 +8,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
+public class PatientRegisterRequest {
     private String firstName;
     private String lastName;
     private String emailAddress;
-    private String password;
     private String phoneString;
     private String gender;
     private String address;
-    private String department;
     private String ehrbID;
-
 }
