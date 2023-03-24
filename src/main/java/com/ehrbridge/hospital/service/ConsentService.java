@@ -2,9 +2,13 @@ package com.ehrbridge.hospital.service;
 
 import com.ehrbridge.hospital.dto.consent.GenerateConsentRequest;
 import com.ehrbridge.hospital.dto.consent.GenerateConsentResponse;
+import com.ehrbridge.hospital.dto.consent.HookConsentRequestHIP;
+import com.ehrbridge.hospital.dto.consent.HookConsentRequestHIU;
+import com.ehrbridge.hospital.entity.ConsentObjectHIP;
 import com.ehrbridge.hospital.entity.ConsentObjectHIU;
 import com.ehrbridge.hospital.entity.ConsentTransaction;
-import com.ehrbridge.hospital.repository.ConsentObjectRepository;
+import com.ehrbridge.hospital.repository.ConsentObjectHIPRepository;
+import com.ehrbridge.hospital.repository.ConsentObjectHIURepository;
 import com.ehrbridge.hospital.repository.ConsentTransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONException;
@@ -18,10 +22,10 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class ConsentService {
 
-    private final ConsentObjectRepository consentObjectRepository;
+    private final ConsentObjectHIURepository consentObjectRepository;
+    private final ConsentObjectHIPRepository consentObjectHIPRepository;
     private final ConsentTransactionRepository consentTransactionRepository;
     public GenerateConsentResponse generateConsent(GenerateConsentRequest request) throws JSONException, ParseException {
-        System.out.println(request);
         var consentObject = ConsentObjectHIU.builder()
                 .patient_ehbr_id(request.getConsent_object().getEhrbID())
                 .hiu_id(request.getConsent_object().getHiuID())
@@ -44,5 +48,32 @@ public class ConsentService {
         //TODO: Call ABDM Server and store the response(txn_id) in the table - POST Request with consent_object as body.
         Long consentRequestId = consent_transaction.getConsent_request_id();
         return GenerateConsentResponse.builder().consent_request_id(consentRequestId).message("Consent Generated Successfully").build();
+    }
+
+    public String hookConsentHIU(HookConsentRequestHIU request) {
+        System.out.println(request);
+        ConsentTransaction consentTransaction = consentTransactionRepository.findByTxnID(request.getTxnID()).orElseThrow();
+
+        consentTransaction.setConsent_status(request.getConsent_status());
+        if(request.getConsent_status().equals("GRANTED"))
+        {
+            consentTransaction.setEncrypted_consent_object(request.getEncrypted_consent_obj());
+        }
+        consentTransactionRepository.save(consentTransaction);
+
+        return "Consent Object Received Successfully at HIU";
+    }
+
+    public String hookConsentHIP(HookConsentRequestHIP request) {
+        var consentObjectHIP = ConsentObjectHIP.builder()
+                .encrypted_consent_object(request.getEncrypted_consent_obj())
+                .public_key(request.getPublic_key())
+                .txnID(request.getTxnID())
+                .build();
+
+        consentObjectHIPRepository.save(consentObjectHIP);
+
+        return "Consent Object Received Successfully at HIP";
+
     }
 }

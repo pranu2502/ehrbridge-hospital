@@ -29,7 +29,6 @@ public class DoctorController {
     @PostMapping("/login/doctor")
     public ResponseEntity<LoginResponse> loginDoctor(@RequestBody LoginRequest request)
     {
-        System.out.println(request);
         LoginResponse loginResponse = doctorAuthService.login(request);
         if(loginResponse.getMessage().equals("Login Successful"))
         {

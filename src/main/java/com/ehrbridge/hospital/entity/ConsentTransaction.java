@@ -17,10 +17,11 @@ public class ConsentTransaction
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long consent_request_id;
-    private Long txn_id;
+    private String txnID;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "consent_object_id", referencedColumnName = "consent_object_id")
     private ConsentObjectHIU consent_object_id;
     private String consent_status;
+    private String encrypted_consent_object;
 
 }
