@@ -1,4 +1,6 @@
 package com.ehrbridge.hospital.config;
+import com.ehrbridge.hospital.service.JwtService;
+import com.ehrbridge.hospital.service.UserDetailsServiceImpl;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,9 +16,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.ehrbridge.hospital.service.JwtService;
-import com.ehrbridge.hospital.service.UserDetailsServiceImpl;
 
 import java.io.IOException;
 @Component
@@ -35,7 +34,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-
         String jwtToken = parseJwt(request);
         if(jwtToken != null && SecurityContextHolder.getContext().getAuthentication() == null){
             String userEmail = jwtService.getUsernameFromJwtToken(jwtToken);
@@ -60,7 +58,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7, authHeader.length());
         }
-
         return null;
     }
 }
