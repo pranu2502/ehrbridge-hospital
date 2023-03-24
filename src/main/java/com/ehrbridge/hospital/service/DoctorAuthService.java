@@ -1,5 +1,6 @@
 package com.ehrbridge.hospital.service;
 
+
 import com.ehrbridge.hospital.dto.auth.LoginRequest;
 import com.ehrbridge.hospital.dto.auth.LoginResponse;
 import com.ehrbridge.hospital.dto.auth.RegisterRequest;
@@ -18,7 +19,9 @@ public class DoctorAuthService {
     private final JwtService jwtService;
     private final DoctorRepository doctorRepository;
     private final PasswordEncoder passwordEncoder;
+
     private final AuthenticationManager authenticationManager;
+
     public RegisterResponse register(RegisterRequest request){
         var doctor = Doctor.builder()
                 .firstName(request.getFirstName())

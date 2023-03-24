@@ -1,5 +1,6 @@
 package com.ehrbridge.hospital.controller;
 
+
 import com.ehrbridge.hospital.dto.auth.LoginRequest;
 import com.ehrbridge.hospital.dto.auth.LoginResponse;
 import com.ehrbridge.hospital.dto.auth.RegisterRequest;
@@ -36,6 +37,7 @@ public class DoctorController {
         }
         return new ResponseEntity<LoginResponse>(loginResponse, HttpStatusCode.valueOf(403) );
     }
+
 
 
 }

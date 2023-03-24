@@ -1,7 +1,7 @@
 package com.ehrbridge.hospital.config;
-
 import com.ehrbridge.hospital.service.JwtService;
 import com.ehrbridge.hospital.service.UserDetailsServiceImpl;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,7 +46,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                 userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                System.out.println(authToken);
             }
         }
         filterChain.doFilter(request, response);
@@ -54,7 +53,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private String parseJwt(HttpServletRequest request) {
-        System.out.println("Hello parseJWT");
         String authHeader = request.getHeader("Authorization");
 
         if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {

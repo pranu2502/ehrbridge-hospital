@@ -41,6 +41,11 @@ public class Doctor implements UserDetails {
         return null;
     }
 
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
 
     @Override
     public String getUsername() {
