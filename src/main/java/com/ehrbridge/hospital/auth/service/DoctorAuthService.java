@@ -21,7 +21,6 @@ public class DoctorAuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     public RegisterResponse register(RegisterRequest request){
-        System.out.println(request.getDepartment());
         var doctor = Doctor.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
