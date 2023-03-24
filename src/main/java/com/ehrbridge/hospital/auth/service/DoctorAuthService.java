@@ -1,15 +1,14 @@
 package com.ehrbridge.hospital.auth.service;
 
-import com.ehrbridge.hospital.auth.dto.LoginRequest;
-import com.ehrbridge.hospital.auth.dto.LoginResponse;
-import com.ehrbridge.hospital.auth.dto.RegisterRequest;
-import com.ehrbridge.hospital.auth.dto.RegisterResponse;
+import com.ehrbridge.hospital.auth.dto.auth.LoginRequest;
+import com.ehrbridge.hospital.auth.dto.auth.LoginResponse;
+import com.ehrbridge.hospital.auth.dto.auth.RegisterRequest;
+import com.ehrbridge.hospital.auth.dto.auth.RegisterResponse;
 import com.ehrbridge.hospital.auth.entity.Doctor;
 import com.ehrbridge.hospital.auth.repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
