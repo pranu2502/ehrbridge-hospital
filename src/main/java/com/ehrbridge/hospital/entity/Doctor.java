@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.auth.entity;
+package com.ehrbridge.hospital.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

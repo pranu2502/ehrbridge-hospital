@@ -1,6 +1,6 @@
-package com.ehrbridge.hospital.auth.repository;
+package com.ehrbridge.hospital.repository;
 
-import com.ehrbridge.hospital.auth.entity.Doctor;
+import com.ehrbridge.hospital.entity.Doctor;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

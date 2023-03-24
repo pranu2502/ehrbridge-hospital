@@ -1,11 +1,11 @@
-package com.ehrbridge.hospital.auth.service;
+package com.ehrbridge.hospital.service;
 
-import com.ehrbridge.hospital.auth.dto.consent.GenerateConsentRequest;
-import com.ehrbridge.hospital.auth.dto.consent.GenerateConsentResponse;
-import com.ehrbridge.hospital.auth.entity.ConsentObjectHIU;
-import com.ehrbridge.hospital.auth.entity.ConsentTransaction;
-import com.ehrbridge.hospital.auth.repository.ConsentObjectRepository;
-import com.ehrbridge.hospital.auth.repository.ConsentTransactionRepository;
+import com.ehrbridge.hospital.dto.consent.GenerateConsentRequest;
+import com.ehrbridge.hospital.dto.consent.GenerateConsentResponse;
+import com.ehrbridge.hospital.entity.ConsentObjectHIU;
+import com.ehrbridge.hospital.entity.ConsentTransaction;
+import com.ehrbridge.hospital.repository.ConsentObjectRepository;
+import com.ehrbridge.hospital.repository.ConsentTransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;

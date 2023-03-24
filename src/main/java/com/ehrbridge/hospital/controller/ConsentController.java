@@ -1,8 +1,8 @@
-package com.ehrbridge.hospital.auth.controller;
+package com.ehrbridge.hospital.controller;
 
-import com.ehrbridge.hospital.auth.dto.consent.GenerateConsentRequest;
-import com.ehrbridge.hospital.auth.dto.consent.GenerateConsentResponse;
-import com.ehrbridge.hospital.auth.service.ConsentService;
+import com.ehrbridge.hospital.dto.consent.GenerateConsentRequest;
+import com.ehrbridge.hospital.dto.consent.GenerateConsentResponse;
+import com.ehrbridge.hospital.service.ConsentService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;

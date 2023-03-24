@@ -1,7 +1,7 @@
-package com.ehrbridge.hospital.auth.config;
+package com.ehrbridge.hospital.config;
 
-import com.ehrbridge.hospital.auth.service.JwtService;
-import com.ehrbridge.hospital.auth.service.UserDetailsServiceImpl;
+import com.ehrbridge.hospital.service.JwtService;
+import com.ehrbridge.hospital.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

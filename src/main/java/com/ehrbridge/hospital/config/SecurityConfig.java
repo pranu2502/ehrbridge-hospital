@@ -1,6 +1,6 @@
-package com.ehrbridge.hospital.auth.config;
+package com.ehrbridge.hospital.config;
 
-import com.ehrbridge.hospital.auth.service.UserDetailsServiceImpl;
+import com.ehrbridge.hospital.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
