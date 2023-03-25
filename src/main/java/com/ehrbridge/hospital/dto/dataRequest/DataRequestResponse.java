@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.dto;
+package com.ehrbridge.hospital.dto.dataRequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class RegisterResponse {
-    private String token;
+public class DataRequestResponse {
     private String message;
+    private Long data_request_id;
 }
