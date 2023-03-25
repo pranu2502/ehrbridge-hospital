@@ -1,7 +1,9 @@
 package com.ehrbridge.hospital.controller;
 
-import com.ehrbridge.hospital.dto.dataRequest.DataRequestRequest;
-import com.ehrbridge.hospital.dto.dataRequest.DataRequestResponse;
+import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIPRequest;
+import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIPResponse;
+import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIURequest;
+import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIUResponse;
 import com.ehrbridge.hospital.service.DataRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +19,14 @@ public class DataRequestController {
     private final DataRequestService dataRequestService;
 
     @PostMapping("/request-data-hiu")
-    public ResponseEntity<DataRequestResponse> requestData(@RequestBody DataRequestRequest request)
+    public ResponseEntity<DataRequestHIUResponse> requestDataHIU(@RequestBody DataRequestHIURequest request)
     {
         return ResponseEntity.ok(dataRequestService.requestDataHIU(request));
+    }
+
+    @PostMapping("/request-data-hip")
+    public ResponseEntity<DataRequestHIPResponse> requestDataHIP(@RequestBody DataRequestHIPRequest request)
+    {
+        return ResponseEntity.ok(dataRequestService.requestDataHIP(request));
     }
 }

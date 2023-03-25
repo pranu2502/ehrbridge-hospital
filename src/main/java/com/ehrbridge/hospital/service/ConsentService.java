@@ -70,10 +70,8 @@ public class ConsentService {
                 .public_key(request.getPublic_key())
                 .txnID(request.getTxnID())
                 .build();
-
         consentObjectHIPRepository.save(consentObjectHIP);
 
         return "Consent Object Received Successfully at HIP";
-
     }
 }

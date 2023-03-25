@@ -6,10 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class DataRequestResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+public class DataRequestHIPResponse {
     private String message;
-    private Long data_request_id;
 }
