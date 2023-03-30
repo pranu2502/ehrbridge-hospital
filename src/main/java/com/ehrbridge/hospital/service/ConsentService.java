@@ -1,9 +1,9 @@
 package com.ehrbridge.hospital.service;
 
-import com.ehrbridge.hospital.dto.consent.GenerateConsentRequest;
-import com.ehrbridge.hospital.dto.consent.GenerateConsentResponse;
-import com.ehrbridge.hospital.dto.consent.HookConsentRequestHIP;
-import com.ehrbridge.hospital.dto.consent.HookConsentRequestHIU;
+import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentRequest;
+import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentResponse;
+import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIP;
+import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIU;
 import com.ehrbridge.hospital.dto.gateway.GenConsentResponse;
 import com.ehrbridge.hospital.entity.ConsentObjectHIP;
 import com.ehrbridge.hospital.entity.ConsentObjectHIU;
@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import lombok.RequiredArgsConstructor;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -35,7 +34,7 @@ import java.util.Arrays;
 public class ConsentService {
 
     @Value("${ehrbridge.gateway.host}")
-    private String GATEWAY_URL;
+    private String GATEWAY_HOST;
 
     @Value("${ehrbridge.gateway.consent-request.endpoint}")
     private String GATEWAY_CONSENT_REQ_ENDPOINT;
@@ -69,7 +68,7 @@ public class ConsentService {
         
         //TODO: Call ABDM Server and store the response(txn_id) in the table - POST Request with consent_object as body.
         ResponseEntity<GenConsentResponse> gatewayResponse = pushConsentRequestToGateway(request);
-        if(gatewayResponse.getBody().getStatus() == "FAILED"){
+        if(gatewayResponse.getBody().getStatus().equals("FAILED")){
             var consent_transaction = ConsentTransaction.builder()
                         .consent_status("PENDING")
                         .consent_object_id(consentObject)
@@ -113,7 +112,7 @@ public class ConsentService {
     }
 
     public ResponseEntity<GenConsentResponse> pushConsentRequestToGateway(GenerateConsentRequest consent_object){
-        final String GATEWAY_REQ_ENDPOINT = GATEWAY_URL + GATEWAY_CONSENT_REQ_ENDPOINT;
+        final String GATEWAY_REQ_ENDPOINT = GATEWAY_HOST + GATEWAY_CONSENT_REQ_ENDPOINT;
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         try {
             String jsonConsentObj = ow.writeValueAsString(consent_object);

@@ -1,9 +1,9 @@
 package com.ehrbridge.hospital.controller;
 
-import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIPRequest;
-import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIPResponse;
-import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIURequest;
-import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIUResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPRequest;
+import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIURequest;
+import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIUResponse;
 import com.ehrbridge.hospital.service.DataRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,6 @@
-package com.ehrbridge.hospital.dto.consent;
+package com.ehrbridge.hospital.dto.consent.GenerateConsent;
 
+import com.ehrbridge.hospital.dto.consent.consentObjects.ConsentObjectRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

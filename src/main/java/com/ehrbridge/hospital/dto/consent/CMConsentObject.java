@@ -1,10 +1,9 @@
 package com.ehrbridge.hospital.dto.consent;
 
+import com.ehrbridge.hospital.dto.consent.consentObjects.PermissionConsentObject;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -18,6 +17,6 @@ public class CMConsentObject {
     public String[] hiType;
     public String[] departments;
     public String consentDescription;
-    public ConsentPermission permission;
+    public PermissionConsentObject permission;
     public String consentStatus;
 }

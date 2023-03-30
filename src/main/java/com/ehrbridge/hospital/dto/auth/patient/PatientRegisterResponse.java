@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.dto.Patient;
+package com.ehrbridge.hospital.dto.auth.patient;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

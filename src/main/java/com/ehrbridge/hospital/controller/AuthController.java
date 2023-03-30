@@ -1,12 +1,12 @@
 package com.ehrbridge.hospital.controller;
 
 
-import com.ehrbridge.hospital.dto.Patient.PatientRegisterRequest;
-import com.ehrbridge.hospital.dto.Patient.PatientRegisterResponse;
-import com.ehrbridge.hospital.dto.auth.LoginRequest;
-import com.ehrbridge.hospital.dto.auth.LoginResponse;
-import com.ehrbridge.hospital.dto.auth.RegisterRequest;
-import com.ehrbridge.hospital.dto.auth.RegisterResponse;
+import com.ehrbridge.hospital.dto.auth.patient.PatientRegisterRequest;
+import com.ehrbridge.hospital.dto.auth.patient.PatientRegisterResponse;
+import com.ehrbridge.hospital.dto.auth.doctor.LoginRequest;
+import com.ehrbridge.hospital.dto.auth.doctor.LoginResponse;
+import com.ehrbridge.hospital.dto.auth.doctor.RegisterRequest;
+import com.ehrbridge.hospital.dto.auth.doctor.RegisterResponse;
 import com.ehrbridge.hospital.service.DoctorAuthService;
 import com.ehrbridge.hospital.service.PatientRecordService;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,9 @@
 package com.ehrbridge.hospital.controller;
 
-import com.ehrbridge.hospital.dto.consent.GenerateConsentRequest;
-import com.ehrbridge.hospital.dto.consent.GenerateConsentResponse;
-import com.ehrbridge.hospital.dto.consent.HookConsentRequestHIP;
-import com.ehrbridge.hospital.dto.consent.HookConsentRequestHIU;
+import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentRequest;
+import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentResponse;
+import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIP;
+import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIU;
 import com.ehrbridge.hospital.service.ConsentService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONException;

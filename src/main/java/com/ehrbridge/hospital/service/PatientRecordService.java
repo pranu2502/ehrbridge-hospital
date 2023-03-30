@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.Optional;
 
 import com.ehrbridge.hospital.dto.Patient.*;
+import com.ehrbridge.hospital.dto.auth.patient.PatientRegisterRequest;
+import com.ehrbridge.hospital.dto.auth.patient.PatientRegisterResponse;
 import com.ehrbridge.hospital.entity.Doctor;
 import com.ehrbridge.hospital.entity.PatientRecords;
 import com.ehrbridge.hospital.repository.DoctorRepository;

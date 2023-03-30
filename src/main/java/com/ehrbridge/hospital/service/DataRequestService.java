@@ -1,39 +1,40 @@
 package com.ehrbridge.hospital.service;
 
-import com.ehrbridge.hospital.auth.dto.ConsentObject;
-import com.ehrbridge.hospital.dto.consent.CMConsentObject;
 import com.ehrbridge.hospital.dto.consent.ConsentJSONObj;
-import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIPRequest;
-import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIPResponse;
-import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIURequest;
-import com.ehrbridge.hospital.dto.dataRequest.DataRequestHIUResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPRequest;
+import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIURequest;
+import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIUResponse;
+import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayRequest;
+import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayResponse;
 import com.ehrbridge.hospital.entity.DataRequestHIP;
 import com.ehrbridge.hospital.entity.DataRequestsHIU;
 import com.ehrbridge.hospital.repository.ConsentObjectHIPRepository;
+import com.ehrbridge.hospital.repository.ConsentTransactionRepository;
 import com.ehrbridge.hospital.repository.DataRequestsHIPRepository;
 import com.ehrbridge.hospital.repository.DataRequestsHIURepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ehrbridge.hospital.entity.ConsentObjectHIP;
 
-import io.jsonwebtoken.Jwt;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.springframework.web.client.RestTemplate;
 
-import java.math.BigInteger;
 import java.security.*;
-import java.security.interfaces.RSAKey;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Objects;
@@ -47,14 +48,19 @@ public class DataRequestService {
     private final DataRequestsHIURepository dataRequestsHIURepository;
     private final DataRequestsHIPRepository dataRequestsHIPRepository;
     private final ConsentObjectHIPRepository consentObjectHIPRepository;
+    private final ConsentTransactionRepository consentTransactionRepository;
     
     @Value("${ehrbridge.gateway.host}")
     private String GATEWAY_HOST;
 
     @Value("${ehrbridge.gateway.data-request.endpoint}")
     private String GATEWAY_DATA_REQ_ENDPOINT;
-    // @Value("${ehrbridge.gateway.datarequest.endpoint}")
-    // private final String GATEWAY_DATA_REQ_ENDPOINT;
+
+    @Autowired
+    private RestTemplate rest;
+
+    @Autowired
+    private HttpHeaders headers;
 
 
     public static RSAPublicKey rsaPEMToPublicKeyObject(String pem) {
@@ -105,9 +111,54 @@ public class DataRequestService {
         dataRequestsHIURepository.save(dataRequest);
 
         String data_request_id = dataRequest.getData_request_id();
+        var transaction = consentTransactionRepository.findByTxnID(request.getTxnID()).orElseThrow();
+
+        DataRequestGatewayRequest gatewayRequest = DataRequestGatewayRequest
+                .builder()
+                .signed_consent_object(transaction.getEncrypted_consent_object())
+                .requestID(data_request_id)
+                .doctorID(request.getDoctorID())
+                .callbackURL("dmjdkjdj")
+                .ehrbID(request.getEhrbID())
+                .hiuID("dshjkjfdhjvf")
+                .hipID(request.getHipID())
+                .txnID(request.getTxnID())
+                .build();
+        ResponseEntity<DataRequestGatewayResponse> gatewayResponse = pushConsentRequestToGateway(gatewayRequest);
+
+        if(gatewayResponse == null)
+        {
+            return DataRequestHIUResponse.builder().data_request_id(data_request_id).message("Failed to Send Data Request to Gateway").build();
+        }
+        else
+        {
+            if(gatewayResponse.getBody().getStatus().equals("FAILED"))
+            {
+                return DataRequestHIUResponse.builder().data_request_id(data_request_id).message("Failed to send Data Request to HIP").build();
+            }
+            else {
+                return DataRequestHIUResponse.builder().data_request_id(data_request_id).message("Data Request Generated").build();
+            }
+        }
 
 
-        return DataRequestHIUResponse.builder().data_request_id(data_request_id).message("Data Request Generated").build();
+    }
+
+    private ResponseEntity<DataRequestGatewayResponse> pushConsentRequestToGateway(DataRequestGatewayRequest request) {
+        final String GATEWAY_REQ_ENDPOINT = GATEWAY_HOST + GATEWAY_DATA_REQ_ENDPOINT;
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        try {
+            String jsonConsentObj = ow.writeValueAsString(request);
+            HttpEntity<String> requestEntity = new HttpEntity<String>(jsonConsentObj, headers);
+            ResponseEntity<DataRequestGatewayResponse> responseEntity = rest.exchange(GATEWAY_REQ_ENDPOINT, HttpMethod.POST, requestEntity, DataRequestGatewayResponse.class);
+            if(responseEntity.getStatusCode().value() == 200){
+                return responseEntity;
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public DataRequestHIPResponse requestDataHIP(DataRequestHIPRequest request) {

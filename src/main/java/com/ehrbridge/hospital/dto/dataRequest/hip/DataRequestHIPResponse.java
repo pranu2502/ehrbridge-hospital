@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.dto.auth;
+package com.ehrbridge.hospital.dto.dataRequest.hip;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class RegisterResponse {
-    private String doctorID;
+public class DataRequestHIPResponse {
     private String message;
 }

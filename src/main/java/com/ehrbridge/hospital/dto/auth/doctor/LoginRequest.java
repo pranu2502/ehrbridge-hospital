@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.dto.consent;
+package com.ehrbridge.hospital.dto.auth.doctor;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DateRangeConsentObject {
-    private String from;
-    private String to;
+public class LoginRequest {
+    private String email;
+    private String password;
+
+
 }

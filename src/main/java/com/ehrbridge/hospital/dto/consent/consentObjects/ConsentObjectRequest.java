@@ -1,6 +1,4 @@
-package com.ehrbridge.hospital.dto.consent;
-
-import org.json.JSONObject;
+package com.ehrbridge.hospital.dto.consent.consentObjects;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,12 +7,12 @@ import lombok.RequiredArgsConstructor;
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class ConsentObject {
+public class ConsentObjectRequest {
     private String ehrbID;
     private String hiuID;
     private String hipID;
-    private String doctorId;
+    private String doctorID;
     private String[] hiType;
     private String[] departments;
-    private JSONObject permission;
+    private PermissionConsentObject permission;
 }
