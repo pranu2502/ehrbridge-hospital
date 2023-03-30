@@ -14,10 +14,13 @@ import lombok.NoArgsConstructor;
 @Entity
 public class ConsentObjectHIP {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long consent_object_id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String consent_object_id;
 
+    @Column(length = 100000000)
     private String encrypted_consent_object;
+
+    @Column(length = 100000000)
     private String public_key;
     private String txnID;
 }

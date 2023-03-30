@@ -1,0 +1,14 @@
+package com.ehrbridge.hospital.dto.Patient;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class PatientRecordRequestData {
+    private String problems;
+    private String diagnosis;
+    private String Prescription;
+}

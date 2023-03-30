@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 public class ConsentTransaction
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long consent_request_id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String consent_request_id;
     private String txnID;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "consent_object_id", referencedColumnName = "consent_object_id")

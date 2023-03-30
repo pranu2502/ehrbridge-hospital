@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.dto.consent;
+package com.ehrbridge.hospital.dto.consent.HookConsent;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

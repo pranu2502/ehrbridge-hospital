@@ -13,8 +13,8 @@ import java.util.Date;
 @Entity
 public class ConsentObjectHIU {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long consent_object_id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String consent_object_id;
     private String patient_ehbr_id;
     private String hiu_id;
     private String hip_id;
@@ -24,6 +24,4 @@ public class ConsentObjectHIU {
     private Date date_from;
     private Date date_to;
     private Date validity;
-
-
 }

@@ -5,9 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class DateRangeConsentObject {
-    private String from;
-    private String to;
+@AllArgsConstructor
+public class ConsentJSONObj {
+    public CMConsentObject consent_obj;
 }

@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @Entity
 public class DataRequestHIP {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
     private String encrypted_consent_object;
     private String txnID;
     private String requestID;

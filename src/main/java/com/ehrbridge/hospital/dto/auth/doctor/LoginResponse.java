@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.dto.consent;
+package com.ehrbridge.hospital.dto.auth.doctor;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GenerateConsentResponse {
-    private Long consent_request_id;
+public class LoginResponse {
+    private String token;
     private String message;
-
 }

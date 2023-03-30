@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.dto.dataRequest;
+package com.ehrbridge.hospital.dto.gateway;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class DataRequestHIUResponse {
+public class DataRequestGatewayResponse {
+    private String status;
     private String message;
-    private Long data_request_id;
+
 }

@@ -1,9 +1,9 @@
 package com.ehrbridge.hospital.controller;
 
-import com.ehrbridge.hospital.dto.consent.GenerateConsentRequest;
-import com.ehrbridge.hospital.dto.consent.GenerateConsentResponse;
-import com.ehrbridge.hospital.dto.consent.HookConsentRequestHIP;
-import com.ehrbridge.hospital.dto.consent.HookConsentRequestHIU;
+import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentRequest;
+import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentResponse;
+import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIP;
+import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIU;
 import com.ehrbridge.hospital.service.ConsentService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONException;
@@ -21,7 +21,7 @@ public class ConsentController {
     @Autowired
     private final ConsentService consentService;
 
-    @PostMapping( "/generate")
+    @PostMapping("/generate")
     public ResponseEntity<GenerateConsentResponse> generateConsent(@RequestBody GenerateConsentRequest request) throws JSONException, ParseException {
         return ResponseEntity.ok(consentService.generateConsent(request));
     }
@@ -35,7 +35,6 @@ public class ConsentController {
     @PostMapping("/recieve-hip")
     public ResponseEntity<String> hookConsentObjectHIP(@RequestBody HookConsentRequestHIP request)
     {
-        System.out.println("checkk");
         return ResponseEntity.ok(consentService.hookConsentHIP(request));
     }
 

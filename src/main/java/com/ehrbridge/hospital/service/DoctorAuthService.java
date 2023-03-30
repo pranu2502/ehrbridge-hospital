@@ -1,10 +1,10 @@
 package com.ehrbridge.hospital.service;
 
 
-import com.ehrbridge.hospital.dto.auth.LoginRequest;
-import com.ehrbridge.hospital.dto.auth.LoginResponse;
-import com.ehrbridge.hospital.dto.auth.RegisterRequest;
-import com.ehrbridge.hospital.dto.auth.RegisterResponse;
+import com.ehrbridge.hospital.dto.auth.doctor.LoginRequest;
+import com.ehrbridge.hospital.dto.auth.doctor.LoginResponse;
+import com.ehrbridge.hospital.dto.auth.doctor.RegisterRequest;
+import com.ehrbridge.hospital.dto.auth.doctor.RegisterResponse;
 import com.ehrbridge.hospital.entity.Doctor;
 import com.ehrbridge.hospital.repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class DoctorAuthService {
         doctorRepository.save(doctor);
 
         var jwtToken = jwtService.generateToken(doctor);
-        return RegisterResponse.builder().message("Doctor Registered Successfully").token(jwtToken).build();
+        return RegisterResponse.builder().message("Doctor Registered Successfully").doctorID(doctor.getId()).build();
     }
 
     public LoginResponse login(LoginRequest request) {

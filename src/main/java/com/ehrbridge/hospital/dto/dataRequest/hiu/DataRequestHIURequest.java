@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.dto.dataRequest;
+package com.ehrbridge.hospital.dto.dataRequest.hiu;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,5 +11,6 @@ public class DataRequestHIURequest {
     private String txnID;
     private String ehrbID;
     private String hipID;
+    private String doctorID;
     private String request_msg;
 }
