@@ -8,5 +8,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class GenConsentResponse {
+    private String status;
     private String txnID;
 }

@@ -69,7 +69,7 @@ public class ConsentService {
         
         //TODO: Call ABDM Server and store the response(txn_id) in the table - POST Request with consent_object as body.
         ResponseEntity<GenConsentResponse> gatewayResponse = pushConsentRequestToGateway(request);
-        if(gatewayResponse == null){
+        if(gatewayResponse.getBody().getStatus() == "FAILED"){
             var consent_transaction = ConsentTransaction.builder()
                         .consent_status("PENDING")
                         .consent_object_id(consentObject)

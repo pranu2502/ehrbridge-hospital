@@ -21,7 +21,7 @@ public class ConsentController {
     @Autowired
     private final ConsentService consentService;
 
-    @PostMapping( "/generate")
+    @PostMapping("/generate")
     public ResponseEntity<GenerateConsentResponse> generateConsent(@RequestBody GenerateConsentRequest request) throws JSONException, ParseException {
         return ResponseEntity.ok(consentService.generateConsent(request));
     }
@@ -35,7 +35,6 @@ public class ConsentController {
     @PostMapping("/recieve-hip")
     public ResponseEntity<String> hookConsentObjectHIP(@RequestBody HookConsentRequestHIP request)
     {
-        System.out.println("checkk");
         return ResponseEntity.ok(consentService.hookConsentHIP(request));
     }
 
