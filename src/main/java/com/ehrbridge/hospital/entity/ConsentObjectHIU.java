@@ -24,7 +24,4 @@ public class ConsentObjectHIU {
     private Date date_from;
     private Date date_to;
     private Date validity;
-
-    
-
 }

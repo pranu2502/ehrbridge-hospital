@@ -19,8 +19,8 @@ ehrbridge:
     jwtSecret: 655468576D5A7133743677397A24432646294A404E635266556A586E32723575
   gateway:
     apiKey: ajhkfjhsjkdhfjkshfjhskjhfsjkshjfkjsh
-    host: https://gateway.com
+    host: https://localhost:8080
     consent-request:
       endpoint: /api/v1/consent/generate
-    datarequest:
+    data-request:
       endpoint: /api/v1/data/request
