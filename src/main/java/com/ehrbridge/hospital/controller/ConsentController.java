@@ -22,20 +22,20 @@ public class ConsentController {
     private final ConsentService consentService;
 
     @PostMapping("/generate")
-    public ResponseEntity<GenerateConsentResponse> generateConsent(@RequestBody GenerateConsentRequest request) throws JSONException, ParseException {
-        return ResponseEntity.ok(consentService.generateConsent(request));
+    public ResponseEntity<GenerateConsentResponse> generateConsent(@RequestBody GenerateConsentRequest request) throws JSONException, ParseException { 
+        return consentService.generateConsent(request);
     }
 
     @PostMapping("/recieve-hiu")
     public ResponseEntity<String> hookConsentObjectHIU(@RequestBody HookConsentRequestHIU request)
     {
-        return ResponseEntity.ok(consentService.hookConsentHIU(request));
+        return consentService.hookConsentHIU(request);
     }
 
     @PostMapping("/recieve-hip")
     public ResponseEntity<String> hookConsentObjectHIP(@RequestBody HookConsentRequestHIP request)
     {
-        return ResponseEntity.ok(consentService.hookConsentHIP(request));
+        return consentService.hookConsentHIP(request);
     }
 
 }

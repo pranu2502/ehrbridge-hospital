@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
@@ -99,7 +100,7 @@ public class DataRequestService {
         return false;
     }
 
-    public DataRequestHIUResponse requestDataHIU(DataRequestHIURequest request)
+    public ResponseEntity<DataRequestHIUResponse> requestDataHIU(DataRequestHIURequest request)
     {
         var dataRequest = DataRequestsHIU.builder()
                 .ehbrID(request.getEhrbID())
@@ -108,7 +109,13 @@ public class DataRequestService {
                 .request_message(request.getRequest_msg())
                 .build();
 
-        dataRequestsHIURepository.save(dataRequest);
+        try {
+            dataRequestsHIURepository.save(dataRequest);
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<DataRequestHIUResponse>(DataRequestHIUResponse.builder().message("Could not save data request to the hospitalDB").build(), HttpStatusCode.valueOf(500));
+        }
+
 
         String data_request_id = dataRequest.getData_request_id();
         var transaction = consentTransactionRepository.findByTxnID(request.getTxnID()).orElseThrow();
@@ -128,20 +135,18 @@ public class DataRequestService {
 
         if(gatewayResponse == null)
         {
-            return DataRequestHIUResponse.builder().data_request_id(data_request_id).message("Failed to Send Data Request to Gateway").build();
+            return new ResponseEntity<DataRequestHIUResponse>(DataRequestHIUResponse.builder().data_request_id(data_request_id).message("Failed to Send Data Request to Gateway").build(), HttpStatusCode.valueOf(501));
         }
         else
         {
-            if(gatewayResponse.getBody().getStatus().equals("FAILED"))
+            if(gatewayResponse.getStatusCode().value() != 200)
             {
-                return DataRequestHIUResponse.builder().data_request_id(data_request_id).message("Failed to send Data Request to HIP").build();
+                return new ResponseEntity<DataRequestHIUResponse>(DataRequestHIUResponse.builder().data_request_id(data_request_id).message("Failed to send Data Request to HIP").build(), HttpStatusCode.valueOf(503));
             }
             else {
-                return DataRequestHIUResponse.builder().data_request_id(data_request_id).message("Data Request Generated").build();
+                return new ResponseEntity<DataRequestHIUResponse>(DataRequestHIUResponse.builder().data_request_id(data_request_id).message("Data Request Generated").build(), HttpStatusCode.valueOf(200));
             }
         }
-
-
     }
 
     private ResponseEntity<DataRequestGatewayResponse> pushConsentRequestToGateway(DataRequestGatewayRequest request) {
@@ -161,7 +166,7 @@ public class DataRequestService {
         return null;
     }
 
-    public DataRequestHIPResponse requestDataHIP(DataRequestHIPRequest request) {
+    public ResponseEntity<DataRequestHIPResponse> requestDataHIP(DataRequestHIPRequest request) {
         var dataRequest = DataRequestHIP.builder()
                 .encrypted_consent_object(request.getEncrypted_consent_object())
                 .txnID(request.getTxnID())
@@ -171,30 +176,31 @@ public class DataRequestService {
                 .request_message(request.getRequest_msg())
                 .callback_url(request.getCallbackURL())
                 .build();
-
-        dataRequestsHIPRepository.save(dataRequest);
+        try {
+            dataRequestsHIPRepository.save(dataRequest);    
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Could not save data request to HIP database").build(), HttpStatusCode.valueOf(500));
+        }
         // fetch the encrypted consent object from ConsentObjectHIP
-        System.out.println(request.getTxnID());
         Optional<ConsentObjectHIP> consentObjectHIP = consentObjectHIPRepository.findByTxnID(request.getTxnID());
 
         if(!consentObjectHIP.isPresent()){
-            return DataRequestHIPResponse.builder().message("TxnID invalid!").build();
+            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("TxnID in data request is invalid!").build(), HttpStatusCode.valueOf(403));
         }
-
 
         RSAPublicKey publicKey = rsaPEMToPublicKeyObject(consentObjectHIP.get().getPublic_key());
         if(publicKey == null){
-            return DataRequestHIPResponse.builder().message("Unable to parse public key recieved from gateway").build();
+            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Unable to parse public key recieved from gateway").build(), HttpStatusCode.valueOf(501));
         }
+
         String signed_object_gateway = consentObjectHIP.get().getEncrypted_consent_object();
         String signed_object_hiu = request.getEncrypted_consent_object();
         if(matchConsentObjects(signed_object_hiu, signed_object_gateway, publicKey)){
-            return DataRequestHIPResponse.builder().message("Consent objects matched, sending data to HIU on callbackurl").build();
+            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent objects matched, sending data to HIU on callbackurl").build(), HttpStatusCode.valueOf(200));
         }
 
         //TODO: Send FHIR via the call back link provided.
-        return DataRequestHIPResponse.builder().message("Consent Objects do not match!").build();
+        return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object from HIU, does not match with consent object received from the gateway").build(), HttpStatusCode.valueOf(403));
     }
-
-
 }

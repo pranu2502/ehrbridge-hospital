@@ -10,6 +10,9 @@ import com.ehrbridge.hospital.entity.Doctor;
 import com.ehrbridge.hospital.entity.PatientRecords;
 import com.ehrbridge.hospital.repository.DoctorRepository;
 import com.ehrbridge.hospital.repository.PatientRecordsRepository;
+
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.ehrbridge.hospital.entity.Patient;
@@ -25,7 +28,7 @@ public class PatientRecordService {
     private final PatientRecordsRepository patientRecordsRepository;
     private final DoctorRepository doctorRepository;
 
-    public PatientRegisterResponse RegisterPatient(PatientRegisterRequest request){
+    public ResponseEntity<PatientRegisterResponse> RegisterPatient(PatientRegisterRequest request){
         var patient = Patient.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -40,21 +43,37 @@ public class PatientRecordService {
             patientRepository.save(patient);
         } catch (Exception e) {
             // TODO: handle exception
+            return new ResponseEntity<PatientRegisterResponse>(PatientRegisterResponse.builder().msg("Patient already exists!").build(), HttpStatusCode.valueOf(403));
+        }
+
+        return new ResponseEntity<PatientRegisterResponse>(PatientRegisterResponse.builder().msg("Patient registered successfully!").patientID(patient.getId()).build(),  HttpStatusCode.valueOf(200));
+    }
+
+    public ResponseEntity<Optional<Patient>> FetchPatient(FetchPatientRequest request){
+        Optional<Patient> patient = null;
+        try {
+            patient = patientRepository.findById(request.getEhrbID());   
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<Optional<Patient>>(patient, HttpStatusCode.valueOf(403));
+        }
+        return new ResponseEntity<Optional<Patient>>(patient, HttpStatusCode.valueOf(200));
+    }
+
+    public ResponseEntity<AddPatientRecordResponse> addRecord(AddPatientRecordRequest request) {
+        var patientID = request.getPatientID();
+        try {
+            Patient patient = patientRepository.findById(patientID).orElseThrow();
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<AddPatientRecordResponse>(AddPatientRecordResponse.builder().message("could not find patient, with the provided patientID!").build(), HttpStatusCode.valueOf(403));
         }
         
-        return PatientRegisterResponse.builder().msg("Patient Registration Successful!").patientID(patient.getId()).build();
-    }
-
-    public Optional<Patient> FetchPatient(FetchPatientRequest request){
-        Optional<Patient> patient = patientRepository.findById(request.getEhrbID());
-        return patient;
-    }
-
-    public AddPatientRecordResponse addRecord(AddPatientRecordRequest request) {
-        var patientID = request.getPatientID();
-        Patient patient = patientRepository.findById(patientID).orElseThrow();
-        Doctor doctor = doctorRepository.findById(request.getDoctorID()).orElseThrow();
-        System.out.println("check");
+        try{
+            Doctor doctor = doctorRepository.findById(request.getDoctorID()).orElseThrow();
+        }catch (Exception e){
+            return new ResponseEntity<AddPatientRecordResponse>(AddPatientRecordResponse.builder().message("could not find pdoctor, with the provided doctorID!").build(), HttpStatusCode.valueOf(403));
+        }
 
         var patientRecord  = PatientRecords.builder()
                 .bp(request.getMetaData().getBp())
@@ -70,9 +89,13 @@ public class PatientRecordService {
                 .patientID(request.getPatientID())
                 .build();
 
-        patientRecordsRepository.save(patientRecord);
+        try {
+            patientRecordsRepository.save(patientRecord);            
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<AddPatientRecordResponse>(AddPatientRecordResponse.builder().message("Could not save the patient record to the database").build(), HttpStatusCode.valueOf(500));
+        }
 
-        return AddPatientRecordResponse.builder().message("Record Added Successfully").build();
-
+        return new ResponseEntity<AddPatientRecordResponse>(AddPatientRecordResponse.builder().message("Record Added Successfully").build(), HttpStatusCode.valueOf(200));
     }
 }

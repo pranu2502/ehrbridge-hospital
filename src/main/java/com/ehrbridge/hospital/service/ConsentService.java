@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -50,7 +51,7 @@ public class ConsentService {
     private final ConsentTransactionRepository consentTransactionRepository;
 
 
-    public GenerateConsentResponse generateConsent(GenerateConsentRequest request) throws JSONException, ParseException {
+    public ResponseEntity<GenerateConsentResponse> generateConsent(GenerateConsentRequest request) throws JSONException, ParseException {
         var consentObject = ConsentObjectHIU.builder()
                 .patient_ehbr_id(request.getConsent_object().getEhrbID())
                 .hiu_id(request.getConsent_object().getHiuID())
@@ -63,52 +64,78 @@ public class ConsentService {
                 .validity(new SimpleDateFormat("yyyy-mm-dd").parse(request.getConsent_object().getPermission().getConsent_validity()))
                 .build();
 
-        consentObjectRepository.save(consentObject);
+        try {
+            consentObjectRepository.save(consentObject);
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+            return new ResponseEntity<GenerateConsentResponse>(GenerateConsentResponse.builder().message("Unable to register consent request").build(), HttpStatusCode.valueOf(500));
+        }
 
-        
-        //TODO: Call ABDM Server and store the response(txn_id) in the table - POST Request with consent_object as body.
         ResponseEntity<GenConsentResponse> gatewayResponse = pushConsentRequestToGateway(request);
-        if(gatewayResponse.getBody().getStatus().equals("FAILED")){
+        if(gatewayResponse == null){
             var consent_transaction = ConsentTransaction.builder()
-                        .consent_status("PENDING")
+                        .consent_status("FAILED")
                         .consent_object_id(consentObject)
                         .build();
             String consentRequestId = consent_transaction.getConsent_request_id();
-            return GenerateConsentResponse.builder().consent_request_id(consentRequestId).message("Could not send consent request to gateway").build();
+            return new ResponseEntity<GenerateConsentResponse>(GenerateConsentResponse.builder().message("Could not send the consent request to gateway").consent_request_id(consentRequestId).build(), HttpStatusCode.valueOf(501));
         }
+
         var consent_transaction = ConsentTransaction.builder()
                 .consent_status("PENDING")
                 .consent_object_id(consentObject)
                 .txnID(gatewayResponse.getBody().getTxnID())
                 .build();
-        consentTransactionRepository.save(consent_transaction);
-        String consentRequestId = consent_transaction.getConsent_request_id();
-        return GenerateConsentResponse.builder().consent_request_id(consentRequestId).message("Consent Generated Successfully").build();
+        try {
+            consentTransactionRepository.save(consent_transaction);
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<GenerateConsentResponse>(GenerateConsentResponse.builder().message("Could not store txnID").consent_request_id(consent_transaction.getConsent_request_id()).build(), HttpStatusCode.valueOf(501));
+        }
+        return new ResponseEntity<GenerateConsentResponse>(GenerateConsentResponse.builder().message("Consent Request Processed Successfully").consent_request_id(consent_transaction.getConsent_request_id()).build(), HttpStatusCode.valueOf(200));
     }
 
-    public String hookConsentHIU(HookConsentRequestHIU request) {
-        System.out.println(request);
-        ConsentTransaction consentTransaction = consentTransactionRepository.findByTxnID(request.getTxnID()).orElseThrow();
+    public ResponseEntity<String> hookConsentHIU(HookConsentRequestHIU request) {
+        ConsentTransaction consentTransaction;
+        try {
+            consentTransaction = consentTransactionRepository.findByTxnID(request.getTxnID()).orElseThrow();
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<String>("TxnID is invalid", HttpStatusCode.valueOf(403));
+        }
 
         consentTransaction.setConsent_status(request.getConsent_status());
         if(request.getConsent_status().equals("GRANTED"))
         {
             consentTransaction.setEncrypted_consent_object(request.getEncrypted_consent_obj());
         }
-        consentTransactionRepository.save(consentTransaction);
 
-        return "Consent Object Received Successfully at HIU";
+        try {
+            consentTransactionRepository.save(consentTransaction);
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<String>("Could not updated consent transaction in the DB!", HttpStatusCode.valueOf(500));
+        }
+
+        return new ResponseEntity<String>("Consent Object Received Successfully at HIU", HttpStatusCode.valueOf(200));
     }
 
-    public String hookConsentHIP(HookConsentRequestHIP request) {
+    public ResponseEntity<String> hookConsentHIP(HookConsentRequestHIP request) {
         var consentObjectHIP = ConsentObjectHIP.builder()
                 .encrypted_consent_object(request.getEncrypted_consent_obj())
                 .public_key(request.getPublic_key())
                 .txnID(request.getTxnID())
                 .build();
-        consentObjectHIPRepository.save(consentObjectHIP);
 
-        return "Consent Object Received Successfully at HIP";
+        try {
+            consentObjectHIPRepository.save(consentObjectHIP);
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<String>("Could not save the consent object in HIP", HttpStatusCode.valueOf(500));
+        }
+
+        return new ResponseEntity<String>("Consent Object Received Successfully at HIP", HttpStatusCode.valueOf(200));
     }
 
     public ResponseEntity<GenConsentResponse> pushConsentRequestToGateway(GenerateConsentRequest consent_object){

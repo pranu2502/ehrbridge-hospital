@@ -8,6 +8,11 @@ import com.ehrbridge.hospital.dto.auth.doctor.RegisterResponse;
 import com.ehrbridge.hospital.entity.Doctor;
 import com.ehrbridge.hospital.repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
+
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +27,7 @@ public class DoctorAuthService {
 
     private final AuthenticationManager authenticationManager;
 
-    public RegisterResponse register(RegisterRequest request){
+    public ResponseEntity<RegisterResponse> register(RegisterRequest request){
         var doctor = Doctor.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -35,19 +40,31 @@ public class DoctorAuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
-        doctorRepository.save(doctor);
+        Doctor doctorSaved;
+        try {
+            doctorSaved = doctorRepository.save(doctor);
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<RegisterResponse>(RegisterResponse.builder().message("Doctor Already Exists!").build(), HttpStatusCode.valueOf(400));
+        }
 
         var jwtToken = jwtService.generateToken(doctor);
-        return RegisterResponse.builder().message("Doctor Registered Successfully").doctorID(doctor.getId()).build();
+
+        return new ResponseEntity<RegisterResponse>(RegisterResponse.builder().message("Doctor Registered Successfully!").doctorID(doctorSaved.getDoctorEhrbID()).build(), HttpStatusCode.valueOf(200));
+
     }
 
-    public LoginResponse login(LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        Optional<Doctor> user;
+        try{
+            user = doctorRepository.findByEmailAddress(request.getEmail());
+        }catch(Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<LoginResponse>(LoginResponse.builder().message("User does not exist!").build(), HttpStatusCode.valueOf(403));
+        }
+        var token = jwtService.generateToken(user.get());
 
-        var user = doctorRepository.findByEmailAddress(request.getEmail()).orElseThrow();
-        var token = jwtService.generateToken(user);
-
-
-        return LoginResponse.builder().token(token).message("Login Successful").build();
+        return new ResponseEntity<LoginResponse>(LoginResponse.builder().message("Login Successful!").token(token).build(), HttpStatusCode.valueOf(200));
     }
 }

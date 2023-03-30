@@ -27,17 +27,15 @@ public class PatientController {
     @Autowired
     private final PatientRecordService patientRecordService;
     
-
-
     @PostMapping("/add-record")
     public ResponseEntity<AddPatientRecordResponse> addPatientDetails(@RequestBody AddPatientRecordRequest request){
-        return ResponseEntity.ok(patientRecordService.addRecord(request));
+        return patientRecordService.addRecord(request);
     }
 
     @GetMapping("/get-details")
     public ResponseEntity<Optional<Patient>> fetchPatient(@RequestParam String ehrbID){
-        Optional<Patient> patient  = patientRecordService.FetchPatient(new FetchPatientRequest(ehrbID));
-        return ResponseEntity.ok(patient);
+
+       return patientRecordService.FetchPatient(new FetchPatientRequest(ehrbID));
     }
 
 }

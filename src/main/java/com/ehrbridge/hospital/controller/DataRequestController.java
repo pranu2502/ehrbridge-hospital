@@ -21,12 +21,12 @@ public class DataRequestController {
     @PostMapping("/request-data-hiu")
     public ResponseEntity<DataRequestHIUResponse> requestDataHIU(@RequestBody DataRequestHIURequest request)
     {
-        return ResponseEntity.ok(dataRequestService.requestDataHIU(request));
+        return dataRequestService.requestDataHIU(request);
     }
 
     @PostMapping("/request-data-hip")
     public ResponseEntity<DataRequestHIPResponse> requestDataHIP(@RequestBody DataRequestHIPRequest request)
     {
-        return ResponseEntity.ok(dataRequestService.requestDataHIP(request));
+        return dataRequestService.requestDataHIP(request);
     }
 }
