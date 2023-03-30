@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @Entity
 public class ConsentObjectHIP {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long consent_object_id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String consent_object_id;
 
     private String encrypted_consent_object;
     private String public_key;

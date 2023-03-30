@@ -42,8 +42,7 @@ public class DataRequestService {
 
         dataRequestsHIURepository.save(dataRequest);
 
-        Long data_request_id = dataRequest.getData_request_id();
-        //TODO: Send Request to ABDM
+        String data_request_id = dataRequest.getData_request_id();
         System.out.println(GATEWAY_URL);
 
         return DataRequestHIUResponse.builder().data_request_id(data_request_id).message("Data Request Generated").build();

@@ -1,15 +1,15 @@
 package com.ehrbridge.hospital.dto.Patient;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PatientRegisterResponse {
-    private String msg;
-    private String patientID;
+public class PatientRecordRequestMetadata {
+    private String height;
+    private String weight;
+    private String bp;
+    private String heartRate;
 }

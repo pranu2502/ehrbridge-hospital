@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class RegisterResponse {
-    private String token;
+    private String doctorID;
     private String message;
 }

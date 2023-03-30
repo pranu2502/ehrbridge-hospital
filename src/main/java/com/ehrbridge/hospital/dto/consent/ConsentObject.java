@@ -1,4 +1,4 @@
-package com.ehrbridge.hospital.auth.dto;
+package com.ehrbridge.hospital.dto.consent;
 
 import org.json.JSONObject;
 

@@ -38,7 +38,7 @@ public class DoctorAuthService {
         doctorRepository.save(doctor);
 
         var jwtToken = jwtService.generateToken(doctor);
-        return RegisterResponse.builder().message("Doctor Registered Successfully").token(jwtToken).build();
+        return RegisterResponse.builder().message("Doctor Registered Successfully").doctorID(doctor.getId()).build();
     }
 
     public LoginResponse login(LoginRequest request) {

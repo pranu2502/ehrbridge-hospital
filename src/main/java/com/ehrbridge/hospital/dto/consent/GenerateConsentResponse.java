@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class GenerateConsentResponse {
-    private Long consent_request_id;
+    private String consent_request_id;
     private String message;
 
 }

@@ -74,8 +74,7 @@ public class ConsentService {
                         .consent_status("PENDING")
                         .consent_object_id(consentObject)
                         .build();
-            consentTransactionRepository.save(consent_transaction);
-            Long consentRequestId = consent_transaction.getConsent_request_id();
+            String consentRequestId = consent_transaction.getConsent_request_id();
             return GenerateConsentResponse.builder().consent_request_id(consentRequestId).message("Could not send consent request to gateway").build();
         }
         var consent_transaction = ConsentTransaction.builder()
@@ -84,7 +83,7 @@ public class ConsentService {
                 .txnID(gatewayResponse.getBody().getTxnID())
                 .build();
         consentTransactionRepository.save(consent_transaction);
-        Long consentRequestId = consent_transaction.getConsent_request_id();
+        String consentRequestId = consent_transaction.getConsent_request_id();
         return GenerateConsentResponse.builder().consent_request_id(consentRequestId).message("Consent Generated Successfully").build();
     }
 

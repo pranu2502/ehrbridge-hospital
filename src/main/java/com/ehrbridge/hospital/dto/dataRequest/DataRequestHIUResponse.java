@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DataRequestHIUResponse {
     private String message;
-    private Long data_request_id;
+    private String data_request_id;
 }

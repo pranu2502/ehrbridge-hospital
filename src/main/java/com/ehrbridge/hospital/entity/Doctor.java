@@ -22,8 +22,8 @@ import jakarta.validation.constraints.Email;
 public class Doctor implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
     private String firstName;
     private String lastName;
     @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}")
@@ -74,11 +74,4 @@ public class Doctor implements UserDetails {
         return true;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
 }

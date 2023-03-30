@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class DataRequestsHIU {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long data_request_id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String data_request_id;
     private String txnID;
     private String request_message;
     private String ehbrID;
