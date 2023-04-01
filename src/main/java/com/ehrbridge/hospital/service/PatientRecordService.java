@@ -1,6 +1,7 @@
 package com.ehrbridge.hospital.service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import com.ehrbridge.hospital.dto.Patient.*;
@@ -49,15 +50,16 @@ public class PatientRecordService {
         return new ResponseEntity<PatientRegisterResponse>(PatientRegisterResponse.builder().msg("Patient registered successfully!").patientID(patient.getId()).build(),  HttpStatusCode.valueOf(200));
     }
 
-    public ResponseEntity<Optional<Patient>> FetchPatient(FetchPatientRequest request){
-        Optional<Patient> patient = null;
+    public ResponseEntity<Patient> FetchPatient(String patientID){
         try {
-            patient = patientRepository.findById(request.getEhrbID());   
+           Optional<Patient> patient = patientRepository.findById(patientID);
+           //System.out.print(patient.isPresent());
+            return new ResponseEntity<Patient>(patient.get(), HttpStatusCode.valueOf(200));
         } catch (Exception e) {
             // TODO: handle exception
-            return new ResponseEntity<Optional<Patient>>(patient, HttpStatusCode.valueOf(403));
+            
         }
-        return new ResponseEntity<Optional<Patient>>(patient, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<Patient>(HttpStatusCode.valueOf(403));
     }
 
     public ResponseEntity<AddPatientRecordResponse> addRecord(AddPatientRecordRequest request) {
@@ -97,5 +99,16 @@ public class PatientRecordService {
         }
 
         return new ResponseEntity<AddPatientRecordResponse>(AddPatientRecordResponse.builder().message("Record Added Successfully").build(), HttpStatusCode.valueOf(200));
+    }
+
+    public ResponseEntity<FetchAllPatientsResponse> fetchPatients(){
+        List<Patient> patients;
+        try {
+            patients = patientRepository.findAll();
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseEntity<FetchAllPatientsResponse>(FetchAllPatientsResponse.builder().build(), HttpStatusCode.valueOf(500));
+        }
+        return new ResponseEntity<FetchAllPatientsResponse>(FetchAllPatientsResponse.builder().patients(patients).build(), HttpStatusCode.valueOf(200));
     }
 }
