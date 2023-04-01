@@ -1,5 +1,7 @@
 package com.ehrbridge.hospital.service;
 
+import com.ehrbridge.hospital.dto.consent.FetchConsentObjsResponse;
+import com.ehrbridge.hospital.dto.consent.FetchConsentReqsResponse;
 import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentRequest;
 import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentResponse;
 import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIP;
@@ -8,9 +10,11 @@ import com.ehrbridge.hospital.dto.gateway.GenConsentResponse;
 import com.ehrbridge.hospital.entity.ConsentObjectHIP;
 import com.ehrbridge.hospital.entity.ConsentObjectHIU;
 import com.ehrbridge.hospital.entity.ConsentTransaction;
+import com.ehrbridge.hospital.entity.Doctor;
 import com.ehrbridge.hospital.repository.ConsentObjectHIPRepository;
 import com.ehrbridge.hospital.repository.ConsentObjectHIURepository;
 import com.ehrbridge.hospital.repository.ConsentTransactionRepository;
+import com.ehrbridge.hospital.repository.DoctorRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -29,6 +33,8 @@ import org.springframework.web.client.RestTemplate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +55,7 @@ public class ConsentService {
     private final ConsentObjectHIURepository consentObjectRepository;
     private final ConsentObjectHIPRepository consentObjectHIPRepository;
     private final ConsentTransactionRepository consentTransactionRepository;
-
+    private final DoctorRepository doctorRepository;
 
     public ResponseEntity<GenerateConsentResponse> generateConsent(GenerateConsentRequest request) throws JSONException, ParseException {
         var consentObject = ConsentObjectHIU.builder()
@@ -161,5 +167,43 @@ public class ConsentService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public ResponseEntity<FetchConsentReqsResponse> fetchAllConsentReqs(){
+        try {
+            List<ConsentTransaction> consentReqs = consentTransactionRepository.findAll();
+            return new ResponseEntity<FetchConsentReqsResponse>(FetchConsentReqsResponse.builder().consentreqs(consentReqs).build(), HttpStatusCode.valueOf(200));
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        }
+        return new ResponseEntity<FetchConsentReqsResponse>(HttpStatusCode.valueOf(500));
+    }
+
+    public ResponseEntity<FetchConsentObjsResponse> fetchConsentsByDoctorID(String doctorID){
+        try {
+            Optional<Doctor> doctor = doctorRepository.findById(doctorID);
+            if(doctor.isPresent()){
+                List<ConsentObjectHIU> consentReqs = consentObjectRepository.findByDoctorEhrbID(doctor.get().getDoctorEhrbID());
+                return new ResponseEntity<FetchConsentObjsResponse>(FetchConsentObjsResponse.builder().consent_objs(consentReqs).build(), HttpStatusCode.valueOf(200));
+            }           
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        }
+        return new ResponseEntity<FetchConsentObjsResponse>(HttpStatusCode.valueOf(500));
+
+    }
+
+    public ResponseEntity<FetchConsentObjsResponse> fetchConsentsByDoctorEhrbID(String doctorEhrbID){
+        try {
+            List<ConsentObjectHIU> consentReqs = consentObjectRepository.findByDoctorEhrbID(doctorEhrbID);
+            return new ResponseEntity<FetchConsentObjsResponse>(FetchConsentObjsResponse.builder().consent_objs(consentReqs).build(), HttpStatusCode.valueOf(200));          
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        }
+        return new ResponseEntity<FetchConsentObjsResponse>(HttpStatusCode.valueOf(500));
+
     }
 }

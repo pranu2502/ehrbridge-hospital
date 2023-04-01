@@ -26,3 +26,7 @@ ehrbridge:
       endpoint: /api/v1/consent/generate
     data-request:
       endpoint: /api/v1/data/request
+    hospital-fetch-all:
+      endpoint: /api/v1/hospitals/fetch-all
+    hospital-fetch-id:
+      endpoint: /api/v1/hospitals/fetch
