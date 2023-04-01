@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class HookConsentRequestHIU {
     private String txnID;
     private String consent_status;
-    private String encrypted_consent_obj;
+    private String signed_consent_object;
 }

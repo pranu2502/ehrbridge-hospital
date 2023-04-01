@@ -18,7 +18,7 @@ public class ConsentObjectHIP {
     private String consent_object_id;
 
     @Column(length = 100000000)
-    private String encrypted_consent_object;
+    private String signed_consent_object;
 
     @Column(length = 100000000)
     private String public_key;

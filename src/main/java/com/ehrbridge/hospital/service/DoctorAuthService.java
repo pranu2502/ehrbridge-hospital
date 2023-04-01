@@ -50,7 +50,7 @@ public class DoctorAuthService {
 
         var jwtToken = jwtService.generateToken(doctor);
 
-        return new ResponseEntity<RegisterResponse>(RegisterResponse.builder().message("Doctor Registered Successfully!").doctorID(doctorSaved.getDoctorEhrbID()).build(), HttpStatusCode.valueOf(200));
+        return new ResponseEntity<RegisterResponse>(RegisterResponse.builder().message("Doctor Registered Successfully!").doctorID(doctorSaved.getId()).build(), HttpStatusCode.valueOf(200));
 
     }
 

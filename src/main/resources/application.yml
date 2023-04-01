@@ -1,9 +1,9 @@
 server:
-  port: 8081
+  port: 8082
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/hospitaldb
+    url: jdbc:mysql://localhost:3306/hospitaldbhip
     username: user1
     password: user1@sql
   jpa:
@@ -14,12 +14,14 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
 
+hospital:
+  id: 939c2769-f4a4-4170-b20f-9bf33c9e6ea0
 ehrbridge:
   app:
     jwtSecret: 655468576D5A7133743677397A24432646294A404E635266556A586E32723575
   gateway:
-    apiKey: ajhkfjhsjkdhfjkshfjhskjhfsjkshjfkjsh
-    host: https://localhost:8080
+    apiKey: 3pOh69XlNofCDfP3j79K7pKE3D84kHip
+    host: http://localhost:8080
     consent-request:
       endpoint: /api/v1/consent/generate
     data-request:
