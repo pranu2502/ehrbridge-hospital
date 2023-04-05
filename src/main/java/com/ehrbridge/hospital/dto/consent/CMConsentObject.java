@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CMConsentObject {
     public String consentID;
-    public String ehbrID;
+    public String ehrbID;
     public String hiuID;
     public String hipID;
     public String doctorID;

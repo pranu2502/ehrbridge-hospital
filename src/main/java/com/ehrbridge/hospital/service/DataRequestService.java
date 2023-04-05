@@ -117,7 +117,7 @@ public class DataRequestService {
     public ResponseEntity<DataRequestHIUResponse> requestDataHIU(DataRequestHIURequest request)
     {
         var dataRequest = DataRequestsHIU.builder()
-                .ehbrID(request.getEhrbID())
+                .ehrbID(request.getEhrbID())
                 .txnID(request.getTxnID())
                 .hipID(request.getHipID())
                 .request_message(request.getRequest_msg())
@@ -186,7 +186,7 @@ public class DataRequestService {
                 .signed_consent_object(request.getSigned_consent_object())
                 .txnID(request.getTxnID())
                 .requestID(request.getRequestID())
-                .ehbrID(request.getEhrbID())
+                .ehrbID(request.getEhrbID())
                 .hiuID(request.getHiuID())
                 .request_message(request.getRequest_msg())
                 .callback_url(request.getCallbackURL())

@@ -59,10 +59,10 @@ public class ConsentService {
 
     public ResponseEntity<GenerateConsentResponse> generateConsent(GenerateConsentRequest request) throws JSONException, ParseException {
         var consentObject = ConsentObjectHIU.builder()
-                .patient_ehbr_id(request.getConsent_object().getEhrbID())
+                .patient_ehrb_id(request.getConsent_object().getEhrbID())
                 .hiu_id(request.getConsent_object().getHiuID())
                 .hip_id(request.getConsent_object().getHipID())
-                .doctor_ehbr_id(request.getConsent_object().getDoctorID())
+                .doctor_ehrb_id(request.getConsent_object().getDoctorID())
                 .hi_type(Arrays.toString(request.getConsent_object().getHiType()))
                 .departments(Arrays.toString(request.getConsent_object().getDepartments()))
                 .date_from(new SimpleDateFormat("yyyy-mm-dd").parse(request.getConsent_object().getPermission().getDateRange().getFrom()))

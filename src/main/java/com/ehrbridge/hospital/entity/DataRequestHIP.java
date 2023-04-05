@@ -21,7 +21,7 @@ public class DataRequestHIP {
     private String signed_consent_object;
     private String txnID;
     private String requestID;
-    private String ehbrID;
+    private String ehrbID;
     private String hiuID;
     private String request_message;
     private String callback_url;
