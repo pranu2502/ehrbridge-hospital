@@ -22,6 +22,7 @@ public class ConsentTransaction
     @JoinColumn(name = "consent_object_id", referencedColumnName = "consent_object_id")
     private ConsentObjectHIU consent_object_id;
     private String consent_status;
-    private String encrypted_consent_object;
+    @Column(length = 100000000)
+    private String signed_consent_object;
 
 }

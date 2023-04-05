@@ -36,9 +36,14 @@ public class PatientController {
     }
 
     @GetMapping("/get-details")
-    public ResponseEntity<Optional<Patient>> fetchPatient(@RequestParam String ehrbID){
+    public ResponseEntity<Patient> fetchPatient(@RequestParam String patientID){
+       System.out.print(patientID);
+       return patientRecordService.FetchPatient(patientID);
+    }
 
-       return patientRecordService.FetchPatient(new FetchPatientRequest(ehrbID));
+    @GetMapping("/get-all-patients")
+    public ResponseEntity<FetchAllPatientsResponse> fetchPatientsByPatientID(){
+        return patientRecordService.fetchPatients();
     }
     
     @GetMapping("/get-records-by-id")
