@@ -1,11 +1,11 @@
 server:
-  port: 8082
+  port: 8081
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/hospitaldbhip
-    username: user1
-    password: user1@sql
+    username: root
+    password: Test@1234
   jpa:
     show-sql: true
     hibernate:

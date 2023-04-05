@@ -35,9 +35,9 @@ public class DoctorFetchService {
         return new ResponseEntity<Optional<Doctor>>(doctor, HttpStatusCode.valueOf(200));
     }
 
-    public ResponseEntity<List<Doctor>> getAllDoctors() {
+    public ResponseEntity<FetchAllDoctorsResponse> getAllDoctors() {
         List<Doctor> doctors = doctorRepository.findAll();
-        return new ResponseEntity<List<Doctor>>(doctors, HttpStatusCode.valueOf(200));
+        return new ResponseEntity<FetchAllDoctorsResponse>(FetchAllDoctorsResponse.builder().doctors(doctors).build(), HttpStatusCode.valueOf(200));
 
     }
 
