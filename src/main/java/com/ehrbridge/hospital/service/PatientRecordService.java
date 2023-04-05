@@ -9,6 +9,8 @@ import com.ehrbridge.hospital.dto.auth.patient.PatientRegisterRequest;
 import com.ehrbridge.hospital.dto.auth.patient.PatientRegisterResponse;
 import com.ehrbridge.hospital.entity.Doctor;
 import com.ehrbridge.hospital.entity.PatientRecords;
+import com.ehrbridge.hospital.dto.Patient.GetPatientRecordRequest;
+import com.ehrbridge.hospital.dto.Patient.GetPatientRecordResponse;
 import com.ehrbridge.hospital.repository.DoctorRepository;
 import com.ehrbridge.hospital.repository.PatientRecordsRepository;
 
@@ -18,7 +20,8 @@ import org.springframework.stereotype.Service;
 
 import com.ehrbridge.hospital.entity.Patient;
 import com.ehrbridge.hospital.repository.PatientRepository;
-
+import java.util.List;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -81,6 +84,7 @@ public class PatientRecordService {
                 .bp(request.getMetaData().getBp())
                 .height(request.getMetaData().getHeight())
                 .weight(request.getMetaData().getWeight())
+                .heartRate(request.getMetaData().getHeartRate())
                 .problems(request.getData().getProblems())
                 .diagnosis(request.getData().getDiagnosis())
                 .prescription(request.getData().getPrescription())
@@ -99,7 +103,26 @@ public class PatientRecordService {
         }
 
         return new ResponseEntity<AddPatientRecordResponse>(AddPatientRecordResponse.builder().message("Record Added Successfully").build(), HttpStatusCode.valueOf(200));
+
+
     }
+
+
+    public ResponseEntity<List<PatientRecords>> getPatientRecordsByID(GetPatientRecordRequest request) {
+
+        List<PatientRecords> patientRecords = patientRecordsRepository.findAll();
+        List<PatientRecords> toBeRemoved = new ArrayList<PatientRecords>();
+        for (PatientRecords record : patientRecords) {
+            if (record.getPatientID().equals(request.getPatientIDString()) == false) {
+                toBeRemoved.add(record);
+            }
+        }
+        patientRecords.removeAll(toBeRemoved);
+        return new ResponseEntity<List<PatientRecords>>(patientRecords, HttpStatusCode.valueOf(200));
+
+
+    }
+
 
     public ResponseEntity<FetchAllPatientsResponse> fetchPatients(){
         List<Patient> patients;
@@ -111,4 +134,5 @@ public class PatientRecordService {
         }
         return new ResponseEntity<FetchAllPatientsResponse>(FetchAllPatientsResponse.builder().patients(patients).build(), HttpStatusCode.valueOf(200));
     }
+
 }
