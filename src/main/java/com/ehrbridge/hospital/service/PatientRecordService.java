@@ -135,4 +135,15 @@ public class PatientRecordService {
         return new ResponseEntity<FetchAllPatientsResponse>(FetchAllPatientsResponse.builder().patients(patients).build(), HttpStatusCode.valueOf(200));
     }
 
+    public ResponseEntity<PatientRecords> FetchRecord(String recordID){
+        try {
+            Optional<PatientRecords> record = patientRecordsRepository.findById(recordID);
+            //System.out.print(patient.isPresent());
+            return new ResponseEntity<PatientRecords>(record.get(), HttpStatusCode.valueOf(200));
+        } catch (Exception e) {
+            // TODO: handle exception
+
+        }
+        return new ResponseEntity<PatientRecords>(HttpStatusCode.valueOf(403));
+    }
 }

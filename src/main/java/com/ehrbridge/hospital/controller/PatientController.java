@@ -51,4 +51,10 @@ public class PatientController {
         return patientRecordService.getPatientRecordsByID(new GetPatientRecordRequest(patientID));
     }
 
+    @GetMapping("/get-record")
+    public ResponseEntity<PatientRecords> fetchRecord(@RequestParam String recordID){
+        System.out.print(recordID);
+        return patientRecordService.FetchRecord(recordID);
+    }
+
 }
