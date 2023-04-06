@@ -2,6 +2,7 @@ package com.ehrbridge.hospital.service;
 
 import com.ehrbridge.hospital.dto.consent.FetchConsentObjsResponse;
 import com.ehrbridge.hospital.dto.consent.FetchConsentReqsResponse;
+import com.ehrbridge.hospital.dto.consent.FetchConsentTransactionResponse;
 import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentRequest;
 import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentResponse;
 import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIP;
@@ -32,6 +33,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -84,6 +86,7 @@ public class ConsentService {
                         .consent_status("FAILED")
                         .consent_object_id(consentObject)
                         .build();
+            consentTransactionRepository.save(consent_transaction);
             String consentRequestId = consent_transaction.getConsent_request_id();
             return new ResponseEntity<>(GenerateConsentResponse.builder().message("Could not send the consent request to gateway").consent_request_id(consentRequestId).build(), HttpStatusCode.valueOf(501));
         }
@@ -205,5 +208,25 @@ public class ConsentService {
         }
         return new ResponseEntity<FetchConsentObjsResponse>(HttpStatusCode.valueOf(500));
 
+    }
+
+    public ResponseEntity<FetchConsentTransactionResponse> fetchConsentTransactionsByDoctorID(String doctorID){
+        try {
+            Optional<Doctor> doctor = doctorRepository.findById(doctorID);
+            System.out.println(doctor.get());
+            if(doctor.isPresent()){
+                List<ConsentObjectHIU> consentReqs = consentObjectRepository.findByDoctorEhrbID(doctor.get().getDoctorEhrbID());
+                System.out.print(consentReqs);
+                List<String> consentIDs = new ArrayList<>(consentReqs.size());
+                for(ConsentObjectHIU consentObj: consentReqs){
+                    consentIDs.add(consentObj.getConsent_object_id());
+                }
+                List<ConsentTransaction> consentTransactions = consentTransactionRepository.findAllByConsentObjectID(consentIDs);
+                return new ResponseEntity<FetchConsentTransactionResponse>(FetchConsentTransactionResponse.builder().consentTxns(consentTransactions).build(), HttpStatusCode.valueOf(200));
+            } 
+        } catch (Exception e) {
+            
+        }
+        return new ResponseEntity<FetchConsentTransactionResponse>(HttpStatusCode.valueOf(500));
     }
 }
