@@ -2,6 +2,7 @@ package com.ehrbridge.hospital.controller;
 
 import com.ehrbridge.hospital.dto.consent.FetchConsentObjsResponse;
 import com.ehrbridge.hospital.dto.consent.FetchConsentReqsResponse;
+import com.ehrbridge.hospital.dto.consent.FetchConsentTransactionResponse;
 import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentRequest;
 import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentResponse;
 import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIP;
@@ -53,5 +54,10 @@ public class ConsentController {
     @GetMapping("/fetch-ehrb-id")
     public ResponseEntity<FetchConsentObjsResponse> fetchAllConsentObjsByDoctorEhrbID(@RequestParam String doctorEhrbID){
         return consentService.fetchConsentsByDoctorEhrbID(doctorEhrbID);
+    }
+
+    @GetMapping("/consent-transaction")
+    public ResponseEntity<FetchConsentTransactionResponse> fetchConsentTransactionByDoctorID(@RequestParam String doctorID){
+        return consentService.fetchConsentTransactionsByDoctorID(doctorID);
     }
 }
