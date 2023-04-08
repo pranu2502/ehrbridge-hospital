@@ -4,6 +4,10 @@ import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentRequest
 import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentResponse;
 import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIP;
 import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIU;
+import java.util.Optional;
+
+import com.ehrbridge.hospital.entity.ConsentObjectHIU;
+import com.ehrbridge.hospital.entity.ConsentTransaction;
 import com.ehrbridge.hospital.service.ConsentService;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONException;
@@ -36,6 +40,16 @@ public class ConsentController {
     public ResponseEntity<String> hookConsentObjectHIP(@RequestBody HookConsentRequestHIP request)
     {
         return consentService.hookConsentHIP(request);
+    }
+
+    @GetMapping("/consent-transaction")
+    public ResponseEntity<Optional<ConsentTransaction>> getConsentTransactions(@RequestParam String consentObjectID) {
+        return consentService.getConsentTransaction(consentObjectID);
+    }
+
+    @GetMapping("/consent-object")
+    public ResponseEntity<Optional<ConsentObjectHIU>> getConsentObjectHIU(@RequestParam String consentObjectID) {
+        return consentService.getConsentObjectHIU(consentObjectID);
     }
 
 }
