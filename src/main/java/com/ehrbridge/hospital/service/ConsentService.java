@@ -18,8 +18,11 @@ import com.ehrbridge.hospital.repository.ConsentTransactionRepository;
 import com.ehrbridge.hospital.repository.DoctorRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+
+import org.apache.catalina.connector.Response;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +38,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import java.util.List;
+
 import java.util.Optional;
 
 @Service
@@ -172,6 +177,29 @@ public class ConsentService {
         return null;
     }
 
+    public ResponseEntity<Optional<ConsentTransaction>> getConsentTransaction(String consentObjectID) {
+        List<ConsentTransaction> consentTransactions = consentTransactionRepository.findAll();
+        ConsentTransaction transaction = null;
+        for (ConsentTransaction consentTransaction : consentTransactions) {
+            if ((consentTransaction.getConsent_object_id().getConsent_object_id()).equals(consentObjectID)) {
+                transaction = consentTransaction;
+            }
+        }
+        Optional<ConsentTransaction> transactionFound = Optional.of(transaction);
+        return new ResponseEntity<Optional<ConsentTransaction>>(transactionFound, HttpStatusCode.valueOf(200));
+    }
+
+    public ResponseEntity<Optional<ConsentObjectHIU>> getConsentObjectHIU(String consentObjectID) {
+        List<ConsentObjectHIU> consentObjects = consentObjectRepository.findAll();
+        ConsentObjectHIU consentObjectFound = null;
+        for (ConsentObjectHIU consentObject : consentObjects) {
+            if (consentObject.getConsent_object_id().equals(consentObjectID)) {
+                consentObjectFound = consentObject;
+            }
+        }
+        Optional<ConsentObjectHIU> consentObjectReturn = Optional.of(consentObjectFound);
+        return new ResponseEntity<Optional<ConsentObjectHIU>>(consentObjectReturn, HttpStatusCode.valueOf(200));
+        
     public ResponseEntity<FetchConsentReqsResponse> fetchAllConsentReqs(){
         try {
             List<ConsentTransaction> consentReqs = consentTransactionRepository.findAll();
