@@ -16,10 +16,12 @@ public class DataRequestHIP {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private String encrypted_consent_object;
+
+    @Column(length = 100000000)
+    private String signed_consent_object;
     private String txnID;
     private String requestID;
-    private String ehbrID;
+    private String ehrbID;
     private String hiuID;
     private String request_message;
     private String callback_url;

@@ -34,6 +34,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
@@ -56,6 +57,9 @@ public class DataRequestService {
 
     @Value("${ehrbridge.gateway.data-request.endpoint}")
     private String GATEWAY_DATA_REQ_ENDPOINT;
+
+    @Value("${hospital.id}")
+    private String hiuID;
 
     @Autowired
     private RestTemplate rest;
@@ -81,21 +85,31 @@ public class DataRequestService {
         Algorithm algorithm = Algorithm.RSA256(public_key);
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decoded_obj_gateway = verifier.verify(signed_obj_gateway);
+        System.out.println("ksjkdkehek");
         DecodedJWT decoded_obj_hiu = verifier.verify(signed_obj_hiu);
+        System.out.println(decoded_obj_gateway);
+        System.out.println(decoded_obj_hiu);
+
         String jsonStrGateway = decoded_obj_gateway.getClaim("consent_obj").toString();
         String jsonStrHIU  = decoded_obj_hiu.getClaim("consent_obj").toString();
         ObjectMapper mapper = new ObjectMapper();
         try {
-            ConsentJSONObj consentObjGateway = mapper.readValue(jsonStrGateway, ConsentJSONObj.class);
-            ConsentJSONObj consentObjHIU = mapper.readValue(jsonStrHIU, ConsentJSONObj.class);
+            ConsentJSONObj consentObjGateway = mapper.reader().readValue(jsonStrGateway, ConsentJSONObj.class);
+            ConsentJSONObj consentObjHIU = mapper.reader().readValue(jsonStrHIU, ConsentJSONObj.class);
+
             if(Objects.deepEquals(consentObjGateway, consentObjHIU)){
+                System.out.println("123");
                return true; 
             }
+            System.out.println("456");
+
             return false;
 
         } catch (JsonProcessingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return false;
     }
@@ -103,7 +117,7 @@ public class DataRequestService {
     public ResponseEntity<DataRequestHIUResponse> requestDataHIU(DataRequestHIURequest request)
     {
         var dataRequest = DataRequestsHIU.builder()
-                .ehbrID(request.getEhrbID())
+                .ehrbID(request.getEhrbID())
                 .txnID(request.getTxnID())
                 .hipID(request.getHipID())
                 .request_message(request.getRequest_msg())
@@ -122,12 +136,12 @@ public class DataRequestService {
 
         DataRequestGatewayRequest gatewayRequest = DataRequestGatewayRequest
                 .builder()
-                .signed_consent_object(transaction.getEncrypted_consent_object())
+                .signed_consent_object(transaction.getSigned_consent_object())
                 .requestID(data_request_id)
                 .doctorID(request.getDoctorID())
-                .callbackURL("dmjdkjdj")
+                .callbackURL("http://localhost:8081")
                 .ehrbID(request.getEhrbID())
-                .hiuID("dshjkjfdhjvf")
+                .hiuID(hiuID)
                 .hipID(request.getHipID())
                 .txnID(request.getTxnID())
                 .build();
@@ -167,11 +181,12 @@ public class DataRequestService {
     }
 
     public ResponseEntity<DataRequestHIPResponse> requestDataHIP(DataRequestHIPRequest request) {
+        System.out.println(request);
         var dataRequest = DataRequestHIP.builder()
-                .encrypted_consent_object(request.getEncrypted_consent_object())
+                .signed_consent_object(request.getSigned_consent_object())
                 .txnID(request.getTxnID())
                 .requestID(request.getRequestID())
-                .ehbrID(request.getEhrbID())
+                .ehrbID(request.getEhrbID())
                 .hiuID(request.getHiuID())
                 .request_message(request.getRequest_msg())
                 .callback_url(request.getCallbackURL())
@@ -182,23 +197,31 @@ public class DataRequestService {
             // TODO: handle exception
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Could not save data request to HIP database").build(), HttpStatusCode.valueOf(500));
         }
-        // fetch the encrypted consent object from ConsentObjectHIP
-        Optional<ConsentObjectHIP> consentObjectHIP = consentObjectHIPRepository.findByTxnID(request.getTxnID());
+        System.out.println("yoooo");
 
-        if(!consentObjectHIP.isPresent()){
+        System.out.println(request.getTxnID());
+
+        ConsentObjectHIP consentObjectHIP;
+
+        try{
+             consentObjectHIP = consentObjectHIPRepository.findByTxnID(request.getTxnID()).orElseThrow();
+        }
+        catch(Exception e)
+        {
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("TxnID in data request is invalid!").build(), HttpStatusCode.valueOf(403));
         }
-
-        RSAPublicKey publicKey = rsaPEMToPublicKeyObject(consentObjectHIP.get().getPublic_key());
+        // fetch the encrypted consent object from ConsentObjectHIP
+        RSAPublicKey publicKey = rsaPEMToPublicKeyObject(consentObjectHIP.getPublic_key());
         if(publicKey == null){
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Unable to parse public key recieved from gateway").build(), HttpStatusCode.valueOf(501));
         }
 
-        String signed_object_gateway = consentObjectHIP.get().getEncrypted_consent_object();
-        String signed_object_hiu = request.getEncrypted_consent_object();
+        String signed_object_gateway = consentObjectHIP.getSigned_consent_object();
+        String signed_object_hiu = request.getSigned_consent_object();
         if(matchConsentObjects(signed_object_hiu, signed_object_gateway, publicKey)){
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent objects matched, sending data to HIU on callbackurl").build(), HttpStatusCode.valueOf(200));
         }
+        System.out.println("oiiiii");
 
         //TODO: Send FHIR via the call back link provided.
         return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object from HIU, does not match with consent object received from the gateway").build(), HttpStatusCode.valueOf(403));

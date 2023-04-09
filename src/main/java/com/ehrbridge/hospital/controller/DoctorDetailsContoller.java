@@ -1,6 +1,8 @@
 package com.ehrbridge.hospital.controller;
 
 import java.util.Optional;
+
+import com.ehrbridge.hospital.dto.Doctor.FetchAllDoctorsResponse;
 import com.ehrbridge.hospital.dto.auth.patient.PatientRegisterRequest;
 import com.ehrbridge.hospital.dto.auth.patient.PatientRegisterResponse;
 import com.ehrbridge.hospital.dto.Doctor.FetchDoctorByIDRequest;
@@ -23,7 +25,6 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/api/v1/doctor")
 @RequiredArgsConstructor
-
 public class DoctorDetailsContoller {
 
     @Autowired
@@ -36,7 +37,7 @@ public class DoctorDetailsContoller {
     }
 
     @GetMapping("/get-all")
-    public ResponseEntity<List<Doctor>> getAllDoctors() {
+    public ResponseEntity<FetchAllDoctorsResponse> getAllDoctors() {
         return doctorFetchService.getAllDoctors();
     }
 }

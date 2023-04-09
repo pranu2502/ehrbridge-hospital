@@ -65,6 +65,6 @@ public class DoctorAuthService {
         }
         var token = jwtService.generateToken(user.get());
 
-        return new ResponseEntity<LoginResponse>(LoginResponse.builder().message("Login Successful!").token(token).build(), HttpStatusCode.valueOf(200));
+        return new ResponseEntity<LoginResponse>(LoginResponse.builder().message("Login Successful!").token(token).doctorID(user.get().getId()).build(), HttpStatusCode.valueOf(200));
     }
 }

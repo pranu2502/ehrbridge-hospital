@@ -11,5 +11,6 @@ import lombok.RequiredArgsConstructor;
 @Builder
 public class LoginResponse {
     private String token;
+    private String doctorID;
     private String message;
 }
