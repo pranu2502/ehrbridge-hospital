@@ -72,7 +72,7 @@ public class ConsentController {
         return consentService.fetchConsentsByDoctorEhrbID(doctorEhrbID);
     }
 
-    @GetMapping("/consent-transaction")
+    @GetMapping("/consent-transaction-by-doctor")
     public ResponseEntity<FetchConsentTransactionResponse> fetchConsentTransactionByDoctorID(@RequestParam String doctorID){
         return consentService.fetchConsentTransactionsByDoctorID(doctorID);
     }

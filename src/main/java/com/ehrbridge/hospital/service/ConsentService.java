@@ -199,7 +199,8 @@ public class ConsentService {
         }
         Optional<ConsentObjectHIU> consentObjectReturn = Optional.of(consentObjectFound);
         return new ResponseEntity<Optional<ConsentObjectHIU>>(consentObjectReturn, HttpStatusCode.valueOf(200));
-        
+    }
+
     public ResponseEntity<FetchConsentReqsResponse> fetchAllConsentReqs(){
         try {
             List<ConsentTransaction> consentReqs = consentTransactionRepository.findAll();
