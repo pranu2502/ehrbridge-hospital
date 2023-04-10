@@ -52,8 +52,8 @@ public class ConsentController {
     }
 
     @GetMapping("/consent-object")
-    public ResponseEntity<Optional<ConsentObjectHIU>> getConsentObjectHIU(@RequestParam String consentObjectID) {
-        return consentService.getConsentObjectHIU(consentObjectID);
+    public ResponseEntity<Optional<ConsentObjectHIU>> getConsentObjectHIU(@RequestParam String consentID) {
+        return consentService.getConsentObjectHIU(consentID);
     }
 
 
@@ -72,7 +72,7 @@ public class ConsentController {
         return consentService.fetchConsentsByDoctorEhrbID(doctorEhrbID);
     }
 
-    @GetMapping("/consent-transaction")
+    @GetMapping("/consent-transaction-by-doctor")
     public ResponseEntity<FetchConsentTransactionResponse> fetchConsentTransactionByDoctorID(@RequestParam String doctorID){
         return consentService.fetchConsentTransactionsByDoctorID(doctorID);
     }

@@ -3,7 +3,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/hospitaldbhip
+    url: jdbc:mysql://localhost:3306/hospitaldbhiu
     username: user1
     password: user1@sql
     
@@ -21,7 +21,7 @@ ehrbridge:
   app:
     jwtSecret: 655468576D5A7133743677397A24432646294A404E635266556A586E32723575
   gateway:
-    apiKey: 3pOh69XlNofCDfP3j79K7pKE3D84kHip
+    apiKey: VdlAHVo9ehgMhktJg2Wg0cybcqHGIUgY
     host: http://localhost:8080
     consent-request:
       endpoint: /api/v1/consent/generate
