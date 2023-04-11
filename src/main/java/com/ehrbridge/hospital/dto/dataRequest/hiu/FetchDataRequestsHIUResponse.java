@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class FetchDataRequestsHIUResponse {
-    public List<DataRequestsHIU> data_requests; 
+    public List<DataRequestsHIU> dataRequests; 
 }

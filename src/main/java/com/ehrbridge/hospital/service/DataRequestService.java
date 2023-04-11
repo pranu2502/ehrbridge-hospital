@@ -8,6 +8,7 @@ import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequestByIDResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequests;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIURequest;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIUResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hiu.FetchDataRequestsHIUResponse;
 import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayRequest;
 import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayResponse;
 import com.ehrbridge.hospital.entity.DataRequestHIP;
@@ -231,7 +232,12 @@ public class DataRequestService {
     public ResponseEntity<FetchDataRequests> fetchDataRequestsHIP() {
         List<DataRequestHIP> requests = dataRequestsHIPRepository.findAll();
         return new ResponseEntity<FetchDataRequests>(FetchDataRequests.builder().dataRequests(requests).build(), HttpStatusCode.valueOf(200));
-        
+    }
+
+    public ResponseEntity<FetchDataRequestsHIUResponse> fetchDataRequestsHIU() {
+        List<DataRequestsHIU> requests = dataRequestsHIURepository.findAll();
+        return new ResponseEntity<FetchDataRequestsHIUResponse>(FetchDataRequestsHIUResponse.builder().dataRequests(requests).build(), HttpStatusCode.valueOf(200));
+   
     }
 
     public ResponseEntity<FetchDataRequestByIDResponse> fetchDataRequestByID(String datarequestID){
