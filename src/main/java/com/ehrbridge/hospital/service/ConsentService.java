@@ -260,7 +260,7 @@ public class ConsentService {
         return new ResponseEntity<FetchConsentTransactionResponse>(HttpStatusCode.valueOf(500));
     }
 
-    public ResponseEntity<FetchConsentsHipResponse> fecthConsentsHIP() {
+    public ResponseEntity<FetchConsentsHipResponse> fetchConsentsHIP() {
         List<ConsentObjectHIP> consentObjects = consentObjectHIPRepository.findAll();
         return new ResponseEntity<FetchConsentsHipResponse>(FetchConsentsHipResponse.builder().consent_objs(consentObjects).build(), HttpStatusCode.valueOf(200));
     }
