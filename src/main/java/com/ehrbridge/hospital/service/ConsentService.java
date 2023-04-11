@@ -3,6 +3,7 @@ package com.ehrbridge.hospital.service;
 import com.ehrbridge.hospital.dto.consent.FetchConsentObjsResponse;
 import com.ehrbridge.hospital.dto.consent.FetchConsentReqsResponse;
 import com.ehrbridge.hospital.dto.consent.FetchConsentTransactionResponse;
+import com.ehrbridge.hospital.dto.consent.FetchConsentsHipResponse;
 import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentRequest;
 import com.ehrbridge.hospital.dto.consent.GenerateConsent.GenerateConsentResponse;
 import com.ehrbridge.hospital.dto.consent.HookConsent.HookConsentRequestHIP;
@@ -257,6 +258,11 @@ public class ConsentService {
             
         }
         return new ResponseEntity<FetchConsentTransactionResponse>(HttpStatusCode.valueOf(500));
+    }
+
+    public ResponseEntity<FetchConsentsHipResponse> fecthConsentsHIP() {
+        List<ConsentObjectHIP> consentObjects = consentObjectHIPRepository.findAll();
+        return new ResponseEntity<FetchConsentsHipResponse>(FetchConsentsHipResponse.builder().consent_objs(consentObjects).build(), HttpStatusCode.valueOf(200));
     }
 }
 

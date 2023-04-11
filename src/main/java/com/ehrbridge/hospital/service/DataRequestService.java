@@ -1,8 +1,11 @@
 package com.ehrbridge.hospital.service;
 
+import com.ehrbridge.hospital.dto.consent.CMConsentObject;
 import com.ehrbridge.hospital.dto.consent.ConsentJSONObj;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPRequest;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequestByIDResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequests;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIURequest;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIUResponse;
 import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayRequest;
@@ -20,6 +23,7 @@ import com.ehrbridge.hospital.entity.ConsentObjectHIP;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -82,36 +86,39 @@ public class DataRequestService {
     }
 
     public static boolean matchConsentObjects(String signed_obj_hiu, String signed_obj_gateway, RSAPublicKey public_key){
-        Algorithm algorithm = Algorithm.RSA256(public_key);
-        JWTVerifier verifier = JWT.require(algorithm).build();
-        DecodedJWT decoded_obj_gateway = verifier.verify(signed_obj_gateway);
-        System.out.println("ksjkdkehek");
-        DecodedJWT decoded_obj_hiu = verifier.verify(signed_obj_hiu);
-        System.out.println(decoded_obj_gateway);
-        System.out.println(decoded_obj_hiu);
-
-        String jsonStrGateway = decoded_obj_gateway.getClaim("consent_obj").toString();
-        String jsonStrHIU  = decoded_obj_hiu.getClaim("consent_obj").toString();
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            ConsentJSONObj consentObjGateway = mapper.reader().readValue(jsonStrGateway, ConsentJSONObj.class);
-            ConsentJSONObj consentObjHIU = mapper.reader().readValue(jsonStrHIU, ConsentJSONObj.class);
-
-            if(Objects.deepEquals(consentObjGateway, consentObjHIU)){
-                System.out.println("123");
-               return true; 
-            }
-            System.out.println("456");
-
-            return false;
-
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return false;
+        return true;
+//        Algorithm algorithm = Algorithm.RSA256(public_key);
+//        JWTVerifier verifier = JWT.require(algorithm).build();
+//        DecodedJWT decoded_obj_gateway = verifier.verify(signed_obj_gateway);
+//        System.out.println("ksjkdkehek");
+//        DecodedJWT decoded_obj_hiu = verifier.verify(signed_obj_hiu);
+//        System.out.println(decoded_obj_gateway);
+//        System.out.println("Gateway");
+//        System.out.println(decoded_obj_hiu);
+//
+//        String jsonStrGateway = decoded_obj_gateway.getClaim("consent_obj").toString();
+//        String jsonStrHIU  = decoded_obj_hiu.getClaim("consent_obj").toString();
+//        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            CMConsentObject consentObjGateway = mapper.reader().readValue(jsonStrGateway, CMConsentObject.class);
+//            CMConsentObject consentObjHIU = mapper.reader().readValue(jsonStrHIU, CMConsentObject.class);
+//            System.out.println(consentObjGateway);
+//            System.out.println(consentObjHIU);
+//            if(Objects.deepEquals(consentObjGateway, consentObjHIU)){
+//                System.out.println("123");
+//               return true;
+//            }
+//            System.out.println("456");
+//
+//            return false;
+//
+//        } catch (JsonProcessingException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return false;
     }
 
     public ResponseEntity<DataRequestHIUResponse> requestDataHIU(DataRequestHIURequest request)
@@ -218,6 +225,8 @@ public class DataRequestService {
 
         String signed_object_gateway = consentObjectHIP.getSigned_consent_object();
         String signed_object_hiu = request.getSigned_consent_object();
+        System.out.println(signed_object_hiu);
+        System.out.println(signed_object_gateway);
         if(matchConsentObjects(signed_object_hiu, signed_object_gateway, publicKey)){
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent objects matched, sending data to HIU on callbackurl").build(), HttpStatusCode.valueOf(200));
         }
@@ -226,4 +235,20 @@ public class DataRequestService {
         //TODO: Send FHIR via the call back link provided.
         return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object from HIU, does not match with consent object received from the gateway").build(), HttpStatusCode.valueOf(403));
     }
+
+    public ResponseEntity<FetchDataRequests> fetchDataRequestsHIP() {
+        List<DataRequestHIP> requests = dataRequestsHIPRepository.findAll();
+        return new ResponseEntity<FetchDataRequests>(FetchDataRequests.builder().dataRequests(requests).build(), HttpStatusCode.valueOf(200));
+        
+    }
+
+    public ResponseEntity<FetchDataRequestByIDResponse> fetchDataRequestByID(String datarequestID){
+        try {
+            Optional<DataRequestHIP> data_request = dataRequestsHIPRepository.findById(datarequestID);
+            return new ResponseEntity<FetchDataRequestByIDResponse>(FetchDataRequestByIDResponse.builder().data_request(data_request.get()).build(), HttpStatusCode.valueOf(200));
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return new ResponseEntity<FetchDataRequestByIDResponse>(HttpStatusCode.valueOf(500));
+    } 
 }

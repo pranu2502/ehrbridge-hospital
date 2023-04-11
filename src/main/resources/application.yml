@@ -16,7 +16,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
 hospital:
-  id: 939c2769-f4a4-4170-b20f-9bf33c9e6ea0
+  id: 0d605e03-3bca-4ea4-841c-b671a7224c63
 ehrbridge:
   app:
     jwtSecret: 655468576D5A7133743677397A24432646294A404E635266556A586E32723575

@@ -28,4 +28,6 @@ public class HospitalController {
     public ResponseEntity<Hospital> fetchHospital(@RequestParam String hospitalID){
         return hospitalService.fetchHospital(hospitalID);
     }
+
+    
 }
