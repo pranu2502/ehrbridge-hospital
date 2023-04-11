@@ -81,10 +81,8 @@ public class ConsentController {
 
     @GetMapping("/fetch-consents-hip")
     public ResponseEntity<FetchConsentsHipResponse> fetchAllConsentsHIP(){
-<<<<<<< HEAD
-        return consentService.fecthConsentsHIP();
-=======
+
         return consentService.fetchConsentsHIP();
->>>>>>> 9ba85b87c00751fa6807a0cb236deaa8805c62cb
+
     }
 }

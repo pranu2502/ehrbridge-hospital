@@ -24,6 +24,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -37,6 +39,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.web.client.RestTemplate;
+
 
 import java.io.IOException;
 import java.security.*;
@@ -86,39 +89,35 @@ public class DataRequestService {
     }
 
     public static boolean matchConsentObjects(String signed_obj_hiu, String signed_obj_gateway, RSAPublicKey public_key){
-        return true;
-//        Algorithm algorithm = Algorithm.RSA256(public_key);
-//        JWTVerifier verifier = JWT.require(algorithm).build();
-//        DecodedJWT decoded_obj_gateway = verifier.verify(signed_obj_gateway);
-//        System.out.println("ksjkdkehek");
-//        DecodedJWT decoded_obj_hiu = verifier.verify(signed_obj_hiu);
-//        System.out.println(decoded_obj_gateway);
-//        System.out.println("Gateway");
-//        System.out.println(decoded_obj_hiu);
-//
-//        String jsonStrGateway = decoded_obj_gateway.getClaim("consent_obj").toString();
-//        String jsonStrHIU  = decoded_obj_hiu.getClaim("consent_obj").toString();
-//        ObjectMapper mapper = new ObjectMapper();
-//        try {
-//            CMConsentObject consentObjGateway = mapper.reader().readValue(jsonStrGateway, CMConsentObject.class);
-//            CMConsentObject consentObjHIU = mapper.reader().readValue(jsonStrHIU, CMConsentObject.class);
-//            System.out.println(consentObjGateway);
-//            System.out.println(consentObjHIU);
-//            if(Objects.deepEquals(consentObjGateway, consentObjHIU)){
-//                System.out.println("123");
-//               return true;
-//            }
-//            System.out.println("456");
-//
-//            return false;
-//
-//        } catch (JsonProcessingException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        return false;
+       Algorithm algorithm = Algorithm.RSA256(public_key);
+       JWTVerifier verifier = JWT.require(algorithm).build();
+       DecodedJWT decoded_obj_gateway = verifier.verify(signed_obj_gateway);
+       DecodedJWT decoded_obj_hiu = verifier.verify(signed_obj_hiu);
+
+       String jsonStrGateway = decoded_obj_gateway.getClaim("consent_obj").toString();
+       String jsonStrHIU  = decoded_obj_hiu.getClaim("consent_obj").toString();
+       ObjectMapper mapper = new ObjectMapper();
+       try {
+        System.out.println("point 1");
+        System.out.println(jsonStrGateway);
+        System.out.println("point 2");
+
+        System.out.println(jsonStrHIU);
+           Object consentObjGateway = mapper.readValue(jsonStrGateway, Object.class);
+           Object consentObjHIU = mapper.readValue(jsonStrHIU, Object.class);
+           if(consentObjGateway.equals(consentObjHIU)){
+              return true;
+           }
+
+           return false;
+
+       } catch (JsonProcessingException e) {
+           // TODO Auto-generated catch block
+           e.printStackTrace();
+       } catch (IOException e) {
+           throw new RuntimeException(e);
+       }
+       return false;
     }
 
     public ResponseEntity<DataRequestHIUResponse> requestDataHIU(DataRequestHIURequest request)
@@ -188,7 +187,6 @@ public class DataRequestService {
     }
 
     public ResponseEntity<DataRequestHIPResponse> requestDataHIP(DataRequestHIPRequest request) {
-        System.out.println(request);
         var dataRequest = DataRequestHIP.builder()
                 .signed_consent_object(request.getSigned_consent_object())
                 .txnID(request.getTxnID())
@@ -204,9 +202,6 @@ public class DataRequestService {
             // TODO: handle exception
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Could not save data request to HIP database").build(), HttpStatusCode.valueOf(500));
         }
-        System.out.println("yoooo");
-
-        System.out.println(request.getTxnID());
 
         ConsentObjectHIP consentObjectHIP;
 
@@ -217,20 +212,17 @@ public class DataRequestService {
         {
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("TxnID in data request is invalid!").build(), HttpStatusCode.valueOf(403));
         }
-        // fetch the encrypted consent object from ConsentObjectHIP
+        //fetch the encrypted consent object from ConsentObjectHIP
         RSAPublicKey publicKey = rsaPEMToPublicKeyObject(consentObjectHIP.getPublic_key());
         if(publicKey == null){
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Unable to parse public key recieved from gateway").build(), HttpStatusCode.valueOf(501));
         }
 
-        String signed_object_gateway = consentObjectHIP.getSigned_consent_object();
         String signed_object_hiu = request.getSigned_consent_object();
-        System.out.println(signed_object_hiu);
-        System.out.println(signed_object_gateway);
+        String signed_object_gateway = consentObjectHIP.getSigned_consent_object();
         if(matchConsentObjects(signed_object_hiu, signed_object_gateway, publicKey)){
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent objects matched, sending data to HIU on callbackurl").build(), HttpStatusCode.valueOf(200));
         }
-        System.out.println("oiiiii");
 
         //TODO: Send FHIR via the call back link provided.
         return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object from HIU, does not match with consent object received from the gateway").build(), HttpStatusCode.valueOf(403));
