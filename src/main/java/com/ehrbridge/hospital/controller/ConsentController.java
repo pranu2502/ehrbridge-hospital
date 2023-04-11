@@ -47,8 +47,8 @@ public class ConsentController {
 
 
     @GetMapping("/consent-transaction")
-    public ResponseEntity<Optional<ConsentTransaction>> getConsentTransactions(@RequestParam String consentObjectID) {
-        return consentService.getConsentTransaction(consentObjectID);
+    public ResponseEntity<Optional<ConsentTransaction>> getConsentTransactions(@RequestParam String consentID) {
+        return consentService.getConsentTransaction(consentID);
     }
 
     @GetMapping("/consent-object")

@@ -80,7 +80,6 @@ public class ConsentService {
         try {
             consentObjectRepository.save(consentObject);
         } catch (Exception e) {
-            // TODO: handle exception
             e.printStackTrace();
             return new ResponseEntity<GenerateConsentResponse>(GenerateConsentResponse.builder().message("Unable to register consent request").build(), HttpStatusCode.valueOf(500));
         }
@@ -200,6 +199,7 @@ public class ConsentService {
         Optional<ConsentObjectHIU> consentObjectReturn = Optional.of(consentObjectFound);
         return new ResponseEntity<Optional<ConsentObjectHIU>>(consentObjectReturn, HttpStatusCode.valueOf(200));
     }
+
 
         public ResponseEntity<FetchConsentReqsResponse> fetchAllConsentReqs(){
         try {
