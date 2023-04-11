@@ -3,6 +3,8 @@ package com.ehrbridge.hospital.service;
 import com.ehrbridge.hospital.dto.consent.ConsentJSONObj;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPRequest;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequestByIDResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequests;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIURequest;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIUResponse;
 import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayRequest;
@@ -20,6 +22,7 @@ import com.ehrbridge.hospital.entity.ConsentObjectHIP;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -226,4 +229,20 @@ public class DataRequestService {
         //TODO: Send FHIR via the call back link provided.
         return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object from HIU, does not match with consent object received from the gateway").build(), HttpStatusCode.valueOf(403));
     }
+
+    public ResponseEntity<FetchDataRequests> fetchDataRequestsHIP() {
+        List<DataRequestHIP> requests = dataRequestsHIPRepository.findAll();
+        return new ResponseEntity<FetchDataRequests>(FetchDataRequests.builder().dataRequests(requests).build(), HttpStatusCode.valueOf(200));
+        
+    }
+
+    public ResponseEntity<FetchDataRequestByIDResponse> fetchDataRequestByID(String datarequestID){
+        try {
+            Optional<DataRequestHIP> data_request = dataRequestsHIPRepository.findById(datarequestID);
+            return new ResponseEntity<FetchDataRequestByIDResponse>(FetchDataRequestByIDResponse.builder().data_request(data_request.get()).build(), HttpStatusCode.valueOf(200));
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return new ResponseEntity<FetchDataRequestByIDResponse>(HttpStatusCode.valueOf(500));
+    } 
 }

@@ -76,4 +76,10 @@ public class ConsentController {
     public ResponseEntity<FetchConsentTransactionResponse> fetchConsentTransactionByDoctorID(@RequestParam String doctorID){
         return consentService.fetchConsentTransactionsByDoctorID(doctorID);
     }
+
+
+    @GetMapping("/fetch-consents-hip")
+    public ReponseEntity<FetchConsentsHIPResponse> fetchAllConsentsHIP(){
+        return consentService.fecthConsentsHIP();
+    }
 }
