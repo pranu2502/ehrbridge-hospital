@@ -58,7 +58,7 @@ public class ConsentController {
     }
 
 
-    @GetMapping("/fetch-all")
+    @GetMapping("/fetch-transactions-hiu")
     public ResponseEntity<FetchConsentReqsResponse> fetchAllConsentReqs(){
         return consentService.fetchAllConsentReqs();
     }
@@ -80,9 +80,12 @@ public class ConsentController {
 
 
     @GetMapping("/fetch-consents-hip")
-    public ResponseEntity<FetchConsentsHipResponse> fetchAllConsentsHIP(){
-
+        public ResponseEntity<FetchConsentsHipResponse> fetchAllConsentsHIP(){
         return consentService.fetchConsentsHIP();
+    }
 
+    @GetMapping("/fetch-consents-hiu")
+    public ResponseEntity<FetchConsentObjsResponse> fetchAllConsentsHIU(){
+        return consentService.fetchConsentsHIU();
     }
 }

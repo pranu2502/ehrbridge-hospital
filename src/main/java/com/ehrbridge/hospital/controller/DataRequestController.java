@@ -44,7 +44,7 @@ public class DataRequestController {
         return dataRequestService.fetchDataRequestByID(datarequestID);
     } 
 
-    @GetMapping('/fetch-data-requests-hiu')
+    @GetMapping("/fetch-data-requests-hiu")
     public ResponseEntity<FetchDataRequestsHIUResponse> fetchDataRequestsHIU(){
         return dataRequestService.fetchDataRequestsHIU();
     }
