@@ -264,5 +264,10 @@ public class ConsentService {
         List<ConsentObjectHIP> consentObjects = consentObjectHIPRepository.findAll();
         return new ResponseEntity<FetchConsentsHipResponse>(FetchConsentsHipResponse.builder().consent_objs(consentObjects).build(), HttpStatusCode.valueOf(200));
     }
+
+    public ResponseEntity<FetchConsentObjsResponse> fetchConsentsHIU(){
+        List<ConsentObjectHIU> consentObjects = consentObjectRepository.findAll();
+        return new ResponseEntity<FetchConsentObjsResponse>(FetchConsentObjsResponse.builder().consent_objs(consentObjects).build(), HttpStatusCode.valueOf(200));
+    }
 }
 
