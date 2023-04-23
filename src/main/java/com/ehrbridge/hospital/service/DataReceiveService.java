@@ -34,7 +34,7 @@ public class DataReceiveService {
                     .prescription(record.getPrescription())
                     .hiType(record.getHiType())
                     .department(record.getDepartment())
-                    .timeStamp(String.valueOf(new Date()))
+                    .timeStamp(record.getTimeStamp())
                     .doctorID(record.getDoctorID())
                     .patientID(record.getPatientID())
                     .build();

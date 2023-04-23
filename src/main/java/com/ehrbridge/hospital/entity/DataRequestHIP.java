@@ -23,5 +23,7 @@ public class DataRequestHIP {
     private String hiuID;
     private String request_message;
     private String callback_url;
+    private String dateFrom;
+    private String dateTo;
 
 }

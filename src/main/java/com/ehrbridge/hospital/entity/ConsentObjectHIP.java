@@ -23,4 +23,6 @@ public class ConsentObjectHIP {
     @Column(length = 100000000)
     private String public_key;
     private String txnID;
+
+    
 }

@@ -124,6 +124,8 @@ public class DataRequestService {
                 .txnID(request.getTxnID())
                 .hipID(request.getHipID())
                 .request_message(request.getRequest_msg())
+                .dateFrom(request.getDateFrom())
+                .dateTo(request.getDateTo())
                 .build();
 
         try {
@@ -147,6 +149,8 @@ public class DataRequestService {
                 .hiuID("dshjkjfdhjvf")
                 .hipID(request.getHipID())
                 .txnID(request.getTxnID())
+                .dateFrom(request.getDateFrom())
+                .dateTo(request.getDateTo())
                 .build();
         ResponseEntity<DataRequestGatewayResponse> gatewayResponse = pushConsentRequestToGateway(gatewayRequest);
 
@@ -192,6 +196,8 @@ public class DataRequestService {
                 .hiuID(request.getHiuID())
                 .request_message(request.getRequest_msg())
                 .callback_url(request.getCallbackURL())
+                .dateFrom(request.getDateFrom())
+                .dateTo(request.getDateTo())
                 .build();
         try {
             dataRequestsHIPRepository.save(dataRequest);    
@@ -238,15 +244,16 @@ public class DataRequestService {
 
         for (PatientRecords record : patientRecords) {
             if (record.getPatientID().equals(patientID)) {
-                patientRecordsForID.add(record);
+                if (record.getTimeStamp().compareToIgnoreCase(request.getDateFrom()) >= 0){
+                    if(record.getTimeStamp().compareToIgnoreCase(request.getDateTo()) <= 0) {
+                        patientRecordsForID.add(record);
+                    }
+                }
+                
             }
         }
 
-        // var receiveDataCallbackURLRequest = ReceiveDataCallbackURLRequest.builder()
-        //         .patientRecords(patientRecordsForID)
-        //         .ehrbID(ehrbID)
-        //         .build();
-
+        
         ReceiveDataCallbackURLRequest receiveDataCallbackURLRequest = new ReceiveDataCallbackURLRequest(patientRecordsForID, ehrbID);
         
 

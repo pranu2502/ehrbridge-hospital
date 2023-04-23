@@ -23,6 +23,11 @@ import java.util.List;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+
 @Service
 @RequiredArgsConstructor
 public class PatientRecordService {
@@ -77,7 +82,9 @@ public class PatientRecordService {
         }catch (Exception e){
             return new ResponseEntity<AddPatientRecordResponse>(AddPatientRecordResponse.builder().message("could not find pdoctor, with the provided doctorID!").build(), HttpStatusCode.valueOf(403));
         }
+        final SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         var patientRecord  = PatientRecords.builder()
                 .bp(request.getMetaData().getBp())
                 .height(request.getMetaData().getHeight())
@@ -88,9 +95,9 @@ public class PatientRecordService {
                 .prescription(request.getData().getPrescription())
                 .hiType(request.getHiType())
                 .department(request.getDepartment())
-                .timeStamp(String.valueOf(new Date()))
                 .doctorID(request.getDoctorID())
                 .patientID(request.getPatientID())
+                .timeStamp(sdf1.format(timestamp))
                 .build();
 
         try {

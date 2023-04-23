@@ -15,5 +15,6 @@ public class DataRequestHIPRequest {
     private String hiuID;
     private String request_msg;
     private String callbackURL;
-
+    private String dateFrom;
+    private String dateTo;
 }
