@@ -13,4 +13,6 @@ public class DataRequestHIURequest {
     private String hipID;
     private String doctorID;
     private String request_msg;
+    private String dateFrom;
+    private String dateTo;
 }

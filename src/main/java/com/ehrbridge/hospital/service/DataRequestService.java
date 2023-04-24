@@ -8,6 +8,8 @@ import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequestByIDResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequests;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIURequest;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIUResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLRequest;
+import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.FetchDataRequestsHIUResponse;
 import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayRequest;
 import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayResponse;
@@ -17,7 +19,13 @@ import com.ehrbridge.hospital.repository.ConsentObjectHIPRepository;
 import com.ehrbridge.hospital.repository.ConsentTransactionRepository;
 import com.ehrbridge.hospital.repository.DataRequestsHIPRepository;
 import com.ehrbridge.hospital.repository.DataRequestsHIURepository;
+import com.ehrbridge.hospital.repository.PatientRecordsRepository;
+import com.ehrbridge.hospital.repository.PatientRepository;
+import com.ehrbridge.hospital.repository.ReceivedDataRecordsRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ehrbridge.hospital.entity.Patient;
+import com.ehrbridge.hospital.entity.PatientRecords;
+import com.ehrbridge.hospital.entity.ReceivedPatientRecords;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ehrbridge.hospital.entity.ConsentObjectHIP;
 
@@ -47,8 +55,11 @@ import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
 
 
 @Service
@@ -59,15 +70,23 @@ public class DataRequestService {
     private final DataRequestsHIPRepository dataRequestsHIPRepository;
     private final ConsentObjectHIPRepository consentObjectHIPRepository;
     private final ConsentTransactionRepository consentTransactionRepository;
-    
+    private final PatientRecordsRepository patientRecordsRepository;
+    private final PatientRepository patientRepository;
+
     @Value("${ehrbridge.gateway.host}")
     private String GATEWAY_HOST;
 
     @Value("${ehrbridge.gateway.data-request.endpoint}")
     private String GATEWAY_DATA_REQ_ENDPOINT;
 
+
+    @Value("${server.port}")
+    private String PORT;
+
+
     @Value("${hospital.id}")
     private String hiuID;
+
 
     @Autowired
     private RestTemplate rest;
@@ -90,35 +109,27 @@ public class DataRequestService {
     }
 
     public static boolean matchConsentObjects(String signed_obj_hiu, String signed_obj_gateway, RSAPublicKey public_key){
-       Algorithm algorithm = Algorithm.RSA256(public_key);
-       JWTVerifier verifier = JWT.require(algorithm).build();
-       DecodedJWT decoded_obj_gateway = verifier.verify(signed_obj_gateway);
-       DecodedJWT decoded_obj_hiu = verifier.verify(signed_obj_hiu);
+        Algorithm algorithm = Algorithm.RSA256(public_key);
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decoded_obj_gateway = verifier.verify(signed_obj_gateway);
+        DecodedJWT decoded_obj_hiu = verifier.verify(signed_obj_hiu);
+        String jsonStrGateway = decoded_obj_gateway.getClaim("consent_obj").toString();
+        String jsonStrHIU  = decoded_obj_hiu.getClaim("consent_obj").toString();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            ConsentJSONObj consentObjGateway = mapper.readValue(jsonStrGateway, ConsentJSONObj.class);
+            ConsentJSONObj consentObjHIU = mapper.readValue(jsonStrHIU, ConsentJSONObj.class);
+            if(Objects.deepEquals(consentObjGateway, consentObjHIU)){
+               return true;
+            }
+            return false;
 
-       String jsonStrGateway = decoded_obj_gateway.getClaim("consent_obj").toString();
-       String jsonStrHIU  = decoded_obj_hiu.getClaim("consent_obj").toString();
-       ObjectMapper mapper = new ObjectMapper();
-       try {
-        System.out.println("point 1");
-        System.out.println(jsonStrGateway);
-        System.out.println("point 2");
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
 
-        System.out.println(jsonStrHIU);
-           Object consentObjGateway = mapper.readValue(jsonStrGateway, Object.class);
-           Object consentObjHIU = mapper.readValue(jsonStrHIU, Object.class);
-           if(consentObjGateway.equals(consentObjHIU)){
-              return true;
-           }
-
-           return false;
-
-       } catch (JsonProcessingException e) {
-           // TODO Auto-generated catch block
-           e.printStackTrace();
-       } catch (IOException e) {
-           throw new RuntimeException(e);
-       }
-       return false;
     }
 
     public ResponseEntity<DataRequestHIUResponse> requestDataHIU(DataRequestHIURequest request)
@@ -128,6 +139,8 @@ public class DataRequestService {
                 .txnID(request.getTxnID())
                 .hipID(request.getHipID())
                 .request_message(request.getRequest_msg())
+                .dateFrom(request.getDateFrom())
+                .dateTo(request.getDateTo())
                 .build();
 
         try {
@@ -140,17 +153,20 @@ public class DataRequestService {
 
         String data_request_id = dataRequest.getData_request_id();
         var transaction = consentTransactionRepository.findByTxnID(request.getTxnID()).orElseThrow();
-
+        String callBackURL = "https://localhost:" + PORT + "/api/v1/data/receive-data-hiu";
         DataRequestGatewayRequest gatewayRequest = DataRequestGatewayRequest
                 .builder()
                 .signed_consent_object(transaction.getSigned_consent_object())
                 .requestID(data_request_id)
                 .doctorID(request.getDoctorID())
-                .callbackURL("http://localhost:8081")
+                .callbackURL(callBackURL)
                 .ehrbID(request.getEhrbID())
                 .hiuID(hiuID)
                 .hipID(request.getHipID())
+                .request_msg(request.getRequest_msg())
                 .txnID(request.getTxnID())
+                .dateFrom(request.getDateFrom())
+                .dateTo(request.getDateTo())
                 .build();
         ResponseEntity<DataRequestGatewayResponse> gatewayResponse = pushConsentRequestToGateway(gatewayRequest);
 
@@ -196,9 +212,11 @@ public class DataRequestService {
                 .hiuID(request.getHiuID())
                 .request_message(request.getRequest_msg())
                 .callback_url(request.getCallbackURL())
+                .dateFrom(request.getDateFrom())
+                .dateTo(request.getDateTo())
                 .build();
         try {
-            dataRequestsHIPRepository.save(dataRequest);    
+            dataRequestsHIPRepository.save(dataRequest);
         } catch (Exception e) {
             // TODO: handle exception
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Could not save data request to HIP database").build(), HttpStatusCode.valueOf(500));
@@ -219,15 +237,66 @@ public class DataRequestService {
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Unable to parse public key recieved from gateway").build(), HttpStatusCode.valueOf(501));
         }
 
-        String signed_object_hiu = request.getSigned_consent_object();
-        String signed_object_gateway = consentObjectHIP.getSigned_consent_object();
-        if(matchConsentObjects(signed_object_hiu, signed_object_gateway, publicKey)){
-            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent objects matched, sending data to HIU on callbackurl").build(), HttpStatusCode.valueOf(200));
+        String signed_object_gateway = consentObjectHIP.get().getEncrypted_consent_object();
+        String signed_object_hiu = request.getEncrypted_consent_object();
+        if(matchConsentObjects(signed_object_hiu, signed_object_gateway, publicKey)== false){
+            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object from HIU, does not match with consent object received from the gateway").build(), HttpStatusCode.valueOf(403));
+
         }
 
         //TODO: Send FHIR via the call back link provided.
-        return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object from HIU, does not match with consent object received from the gateway").build(), HttpStatusCode.valueOf(403));
+
+        String ehrbID = request.getEhrbID();
+        String patientID = null;
+        List<Patient> patients = patientRepository.findAll();
+        for (Patient patient : patients) {
+            if (patient.getEhrbID().equals(ehrbID)) {
+                patientID = patient.getId();
+            }
+        }
+
+        if(patientID == null) {
+            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Patient could not be found").build(), HttpStatusCode.valueOf(200));
+        }
+
+        List<PatientRecords> patientRecords = patientRecordsRepository.findAll();
+        List<PatientRecords> patientRecordsForID = new ArrayList<PatientRecords>();
+
+        for (PatientRecords record : patientRecords) {
+            if (record.getPatientID().equals(patientID)) {
+                if (record.getTimeStamp().compareToIgnoreCase(request.getDateFrom()) >= 0){
+                    if(record.getTimeStamp().compareToIgnoreCase(request.getDateTo()) <= 0) {
+                        patientRecordsForID.add(record);
+                    }
+                }
+
+            }
+        }
+
+
+        ReceiveDataCallbackURLRequest receiveDataCallbackURLRequest = new ReceiveDataCallbackURLRequest(patientRecordsForID, ehrbID, request.getTxnID());
+
+
+        String callbackURL = request.getCallbackURL();
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        try {
+            String jsonConsentObj = ow.writeValueAsString(receiveDataCallbackURLRequest);
+            HttpEntity<String> requestEntity = new HttpEntity<String>(jsonConsentObj, headers);
+            ResponseEntity<ReceiveDataCallbackURLResponse> responseEntity = rest.exchange(callbackURL, HttpMethod.POST, requestEntity, ReceiveDataCallbackURLResponse.class);
+            if(responseEntity.getStatusCode().value() == 200) {
+                // return responseEntity;
+                return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent objects matched, Data transfer succesful").build(), HttpStatusCode.valueOf(200));
+            }
+
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        }
+        return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent objects matched but data transfer failed").build(), HttpStatusCode.valueOf(500));
+
+
     }
+
 
     public ResponseEntity<FetchDataRequests> fetchDataRequestsHIP() {
         List<DataRequestHIP> requests = dataRequestsHIPRepository.findAll();

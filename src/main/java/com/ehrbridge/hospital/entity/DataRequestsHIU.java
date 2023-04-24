@@ -20,4 +20,6 @@ public class DataRequestsHIU {
     private String request_message;
     private String ehrbID;
     private String hipID;
+    private String dateFrom;
+    private String dateTo;
 }

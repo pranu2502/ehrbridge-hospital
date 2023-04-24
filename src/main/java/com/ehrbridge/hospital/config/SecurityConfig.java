@@ -42,7 +42,8 @@ public class SecurityConfig {
                 .cors()
                 .disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/**")
+                .requestMatchers("/api/v1/auth/**", "/api/v1/patient/**", "/api/v1/data/request-data-hip", "/api/v1/consent/recieve-hip", "/api/v1/consent/recieve-hiu", "/api/v1/data/receive-data-hiu")
+
                 .permitAll()
                 .anyRequest()
                 .authenticated()
