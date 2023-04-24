@@ -18,7 +18,7 @@ public class DataRequestsHIU {
     private String data_request_id;
     private String txnID;
     private String request_message;
-    private String ehbrID;
+    private String ehrbID;
     private String hipID;
     private String dateFrom;
     private String dateTo;

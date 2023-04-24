@@ -1,12 +1,16 @@
 package com.ehrbridge.hospital.service;
 
+import com.ehrbridge.hospital.dto.consent.CMConsentObject;
 import com.ehrbridge.hospital.dto.consent.ConsentJSONObj;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPRequest;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequestByIDResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequests;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIURequest;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIUResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLRequest;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hiu.FetchDataRequestsHIUResponse;
 import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayRequest;
 import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayResponse;
 import com.ehrbridge.hospital.entity.DataRequestHIP;
@@ -28,6 +32,9 @@ import com.ehrbridge.hospital.entity.ConsentObjectHIP;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -42,6 +49,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.web.client.RestTemplate;
 
+
+import java.io.IOException;
 import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
@@ -70,8 +79,13 @@ public class DataRequestService {
     @Value("${ehrbridge.gateway.data-request.endpoint}")
     private String GATEWAY_DATA_REQ_ENDPOINT;
 
+
     @Value("${server.port}")
     private String PORT;
+
+
+    @Value("${hospital.id}")
+    private String hiuID;
 
 
     @Autowired
@@ -115,12 +129,13 @@ public class DataRequestService {
             e.printStackTrace();
         }
         return false;
+
     }
 
     public ResponseEntity<DataRequestHIUResponse> requestDataHIU(DataRequestHIURequest request)
     {
         var dataRequest = DataRequestsHIU.builder()
-                .ehbrID(request.getEhrbID())
+                .ehrbID(request.getEhrbID())
                 .txnID(request.getTxnID())
                 .hipID(request.getHipID())
                 .request_message(request.getRequest_msg())
@@ -141,12 +156,12 @@ public class DataRequestService {
         String callBackURL = "https://localhost:" + PORT + "/api/v1/data/receive-data-hiu";
         DataRequestGatewayRequest gatewayRequest = DataRequestGatewayRequest
                 .builder()
-                .signed_consent_object(transaction.getEncrypted_consent_object())
+                .signed_consent_object(transaction.getSigned_consent_object())
                 .requestID(data_request_id)
                 .doctorID(request.getDoctorID())
                 .callbackURL(callBackURL)
                 .ehrbID(request.getEhrbID())
-                .hiuID("dshjkjfdhjvf")
+                .hiuID(hiuID)
                 .hipID(request.getHipID())
                 .request_msg(request.getRequest_msg())
                 .txnID(request.getTxnID())
@@ -190,10 +205,10 @@ public class DataRequestService {
 
     public ResponseEntity<DataRequestHIPResponse> requestDataHIP(DataRequestHIPRequest request) {
         var dataRequest = DataRequestHIP.builder()
-                .encrypted_consent_object(request.getEncrypted_consent_object())
+                .signed_consent_object(request.getSigned_consent_object())
                 .txnID(request.getTxnID())
                 .requestID(request.getRequestID())
-                .ehbrID(request.getEhrbID())
+                .ehrbID(request.getEhrbID())
                 .hiuID(request.getHiuID())
                 .request_message(request.getRequest_msg())
                 .callback_url(request.getCallbackURL())
@@ -206,14 +221,18 @@ public class DataRequestService {
             // TODO: handle exception
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Could not save data request to HIP database").build(), HttpStatusCode.valueOf(500));
         }
-        // fetch the encrypted consent object from ConsentObjectHIP
-        Optional<ConsentObjectHIP> consentObjectHIP = consentObjectHIPRepository.findByTxnID(request.getTxnID());
 
-        if(!consentObjectHIP.isPresent()){
+        ConsentObjectHIP consentObjectHIP;
+
+        try{
+             consentObjectHIP = consentObjectHIPRepository.findByTxnID(request.getTxnID()).orElseThrow();
+        }
+        catch(Exception e)
+        {
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("TxnID in data request is invalid!").build(), HttpStatusCode.valueOf(403));
         }
-
-        RSAPublicKey publicKey = rsaPEMToPublicKeyObject(consentObjectHIP.get().getPublic_key());
+        //fetch the encrypted consent object from ConsentObjectHIP
+        RSAPublicKey publicKey = rsaPEMToPublicKeyObject(consentObjectHIP.getPublic_key());
         if(publicKey == null){
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Unable to parse public key recieved from gateway").build(), HttpStatusCode.valueOf(501));
         }
@@ -279,5 +298,24 @@ public class DataRequestService {
     }
 
 
+    public ResponseEntity<FetchDataRequests> fetchDataRequestsHIP() {
+        List<DataRequestHIP> requests = dataRequestsHIPRepository.findAll();
+        return new ResponseEntity<FetchDataRequests>(FetchDataRequests.builder().dataRequests(requests).build(), HttpStatusCode.valueOf(200));
+    }
 
+    public ResponseEntity<FetchDataRequestsHIUResponse> fetchDataRequestsHIU() {
+        List<DataRequestsHIU> requests = dataRequestsHIURepository.findAll();
+        return new ResponseEntity<FetchDataRequestsHIUResponse>(FetchDataRequestsHIUResponse.builder().dataRequests(requests).build(), HttpStatusCode.valueOf(200));
+   
+    }
+
+    public ResponseEntity<FetchDataRequestByIDResponse> fetchDataRequestByID(String datarequestID){
+        try {
+            Optional<DataRequestHIP> data_request = dataRequestsHIPRepository.findById(datarequestID);
+            return new ResponseEntity<FetchDataRequestByIDResponse>(FetchDataRequestByIDResponse.builder().data_request(data_request.get()).build(), HttpStatusCode.valueOf(200));
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return new ResponseEntity<FetchDataRequestByIDResponse>(HttpStatusCode.valueOf(500));
+    } 
 }

@@ -11,5 +11,5 @@ public class HookConsentRequestHIP {
 
     private String txnID;
     private String public_key;
-    private String encrypted_consent_obj;
+    private String signed_consent_obj;
 }
