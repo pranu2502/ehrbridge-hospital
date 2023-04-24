@@ -37,6 +37,8 @@ public class DataReceiveService {
                     .timeStamp(record.getTimeStamp())
                     .doctorID(record.getDoctorID())
                     .patientID(record.getPatientID())
+                    .ehrbID(request.getEhrbID())
+                    .txnID(request.getTxnID())
                     .build();
             ReceivedDataRecordsRepository.save(receivedPatientRecord);
         }

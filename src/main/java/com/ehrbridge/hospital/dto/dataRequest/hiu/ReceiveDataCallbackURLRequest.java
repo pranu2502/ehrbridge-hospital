@@ -14,4 +14,5 @@ import com.ehrbridge.hospital.entity.PatientRecords;
 public class ReceiveDataCallbackURLRequest {
     private List<PatientRecords> patientRecords;
     private String ehrbID;
+    private String txnID;
 }

@@ -254,7 +254,7 @@ public class DataRequestService {
         }
 
         
-        ReceiveDataCallbackURLRequest receiveDataCallbackURLRequest = new ReceiveDataCallbackURLRequest(patientRecordsForID, ehrbID);
+        ReceiveDataCallbackURLRequest receiveDataCallbackURLRequest = new ReceiveDataCallbackURLRequest(patientRecordsForID, ehrbID, request.getTxnID());
         
 
         String callbackURL = request.getCallbackURL();
