@@ -63,7 +63,7 @@ public class DataRequestService {
     private final ConsentTransactionRepository consentTransactionRepository;
     private final PatientRecordsRepository patientRecordsRepository;
     private final PatientRepository patientRepository;
-    
+
     @Value("${ehrbridge.gateway.host}")
     private String GATEWAY_HOST;
 
@@ -106,7 +106,7 @@ public class DataRequestService {
             ConsentJSONObj consentObjGateway = mapper.readValue(jsonStrGateway, ConsentJSONObj.class);
             ConsentJSONObj consentObjHIU = mapper.readValue(jsonStrHIU, ConsentJSONObj.class);
             if(Objects.deepEquals(consentObjGateway, consentObjHIU)){
-               return true; 
+               return true;
             }
             return false;
 
@@ -148,6 +148,7 @@ public class DataRequestService {
                 .ehrbID(request.getEhrbID())
                 .hiuID("dshjkjfdhjvf")
                 .hipID(request.getHipID())
+                .request_msg(request.getRequest_msg())
                 .txnID(request.getTxnID())
                 .dateFrom(request.getDateFrom())
                 .dateTo(request.getDateTo())
@@ -200,7 +201,7 @@ public class DataRequestService {
                 .dateTo(request.getDateTo())
                 .build();
         try {
-            dataRequestsHIPRepository.save(dataRequest);    
+            dataRequestsHIPRepository.save(dataRequest);
         } catch (Exception e) {
             // TODO: handle exception
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Could not save data request to HIP database").build(), HttpStatusCode.valueOf(500));
@@ -221,7 +222,7 @@ public class DataRequestService {
         String signed_object_hiu = request.getEncrypted_consent_object();
         if(matchConsentObjects(signed_object_hiu, signed_object_gateway, publicKey)== false){
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object from HIU, does not match with consent object received from the gateway").build(), HttpStatusCode.valueOf(403));
-            
+
         }
 
         //TODO: Send FHIR via the call back link provided.
@@ -249,13 +250,13 @@ public class DataRequestService {
                         patientRecordsForID.add(record);
                     }
                 }
-                
+
             }
         }
 
-        
+
         ReceiveDataCallbackURLRequest receiveDataCallbackURLRequest = new ReceiveDataCallbackURLRequest(patientRecordsForID, ehrbID, request.getTxnID());
-        
+
 
         String callbackURL = request.getCallbackURL();
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -267,16 +268,16 @@ public class DataRequestService {
                 // return responseEntity;
                 return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent objects matched, Data transfer succesful").build(), HttpStatusCode.valueOf(200));
             }
-            
+
         } catch (Exception e) {
             // TODO: handle exception
             e.printStackTrace();
         }
         return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent objects matched but data transfer failed").build(), HttpStatusCode.valueOf(500));
 
-        
+
     }
 
-    
+
 
 }

@@ -17,6 +17,7 @@ public class DataRequestGatewayRequest {
     private String doctorID;
     private String hiuID;
     private String hipID;
+    private String request_msg;
     private String callbackURL;
     private String dateFrom;
     private String dateTo;
