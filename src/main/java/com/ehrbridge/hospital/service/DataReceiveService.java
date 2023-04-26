@@ -42,6 +42,7 @@ public class DataReceiveService {
                     .build();
             ReceivedDataRecordsRepository.save(receivedPatientRecord);
         }
+        System.out.println(request);
         return new ResponseEntity<ReceiveDataCallbackURLResponse>(ReceiveDataCallbackURLResponse.builder().message("Data transfer successful").build(), HttpStatusCode.valueOf(200));
 
 

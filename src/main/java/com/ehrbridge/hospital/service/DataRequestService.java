@@ -119,6 +119,8 @@ public class DataRequestService {
     }
 
     public static CMConsentObject decodeSignedConsentObject(String signed_obj_hiu, RSAPublicKey public_key){
+        System.out.println("HAAAAAAAAAAAAAAAAAAAAAAAAAa");
+        System.out.println(signed_obj_hiu);
         Algorithm algorithm = Algorithm.RSA256(public_key);
         JWTVerifier verifier = JWT.require(algorithm).build();
         DecodedJWT decoded_obj_hiu = verifier.verify(signed_obj_hiu);
@@ -165,7 +167,7 @@ public class DataRequestService {
 
         String data_request_id = dataRequest.getData_request_id();
         var transaction = consentTransactionRepository.findByTxnID(request.getTxnID()).orElseThrow();
-        String callBackURL = "https://localhost:" + PORT + "/api/v1/data/receive-data-hiu";
+        String callBackURL = "http://localhost:" + PORT + "/api/v1/data/receive-data-hiu";
         String publicKeyDataCallback = RSAHelperConfig.rsaPublicKeyObjectToPEM(RSAHelperConfig.RSA_PUB);
         DataRequestGatewayRequest gatewayRequest = DataRequestGatewayRequest
                 .builder()
@@ -180,6 +182,8 @@ public class DataRequestService {
                 .txnID(request.getTxnID())
                 .dateFrom(request.getDateFrom())
                 .dateTo(request.getDateTo())
+                .hiType(request.getHiType())
+                .departments(request.getDepartments())
                 .build();
         ResponseEntity<DataRequestGatewayResponse> gatewayResponse = pushConsentRequestToGateway(gatewayRequest);
 
@@ -252,6 +256,8 @@ public class DataRequestService {
 
         // String signed_object_gateway = consentObjectHIP.getSigned_consent_object();
         String signed_object_hiu = request.getSigned_consent_object();
+        System.out.println("QEUWOUOWEIRUOWIEUROWEIURIOWEUR");
+        System.out.println(request);
         // verify consent object and
         // deserialize consent object
         CMConsentObject cmConsentObject = decodeSignedConsentObject(signed_object_hiu, publicKey);
@@ -274,13 +280,13 @@ public class DataRequestService {
         }
         // Call below function
         // request = this.makeSubset(request, consentObject) 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
  
         // Date dataFrom = sdf.parse(request.getDateFrom());
         // Date dateTo = sdf.parse(request.getDateTo());
         String[] hiTypesRequest = this.splitToArray(request.getHiType());
         String[] departmentsRequest = this.splitToArray(request.getDepartments());
-
+        System.out.println(hiTypesRequest);
+        System.out.println(departmentsRequest);
         System.out.println(request.getDateFrom());
         System.out.println(request.getDateTo());
 
@@ -288,6 +294,7 @@ public class DataRequestService {
         List<PatientRecords> patientRecordsForID = new ArrayList<PatientRecords>();
 
         for (PatientRecords record : patientRecords) {
+            
             if (record.getPatientID().equals(patientID)) {
                 if (record.getTimeStamp().compareTo(request.getDateFrom()) >= 0){
                     if(record.getTimeStamp().compareTo(request.getDateTo()) <= 0) {
@@ -295,6 +302,8 @@ public class DataRequestService {
                             if (record.getHiType().equals(hiT)) {
                                 for (String dep : departmentsRequest) {
                                     if(record.getDepartment().equals(dep)) {
+                                        System.out.println("please let me sleep now");
+                                        System.out.println(record);
                                         patientRecordsForID.add(record);
                                     }
                                 }
