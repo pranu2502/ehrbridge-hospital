@@ -6,20 +6,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "patient-records")
-public class PatientRecords {
-
+@Table(name = "received-patient-records")
+public class ReceivedPatientRecords {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String recordID;
     private String patientID;
+    private String ehrbID;
+    private String txnID;
     private String doctorID;
     private String height;
     private String weight;
@@ -31,5 +30,4 @@ public class PatientRecords {
     private String diagnosis;
     private String prescription;
     private String timeStamp;
-
 }
