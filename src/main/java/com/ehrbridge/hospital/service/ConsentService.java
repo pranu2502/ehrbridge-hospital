@@ -124,10 +124,7 @@ public class ConsentService {
         System.out.println("check2");
 
         consentTransaction.setConsent_status(request.getConsent_status());
-        if(request.getConsent_status().equals("GRANTED"))
-        {
-            consentTransaction.setSigned_consent_object(request.getSigned_consent_object());
-        }
+        consentTransaction.setSigned_consent_object(request.getSigned_consent_object());
 
         try {
             consentTransactionRepository.save(consentTransaction);
@@ -148,7 +145,13 @@ public class ConsentService {
                 .build();
 
         try {
-            consentObjectHIPRepository.save(consentObjectHIP);
+            var existingConsentObject = consentObjectHIPRepository.findByTxnID(request.getTxnID());
+            if(existingConsentObject.isPresent()){
+                existingConsentObject.get().setSigned_consent_object(request.getSigned_consent_obj());
+                consentObjectHIPRepository.save(existingConsentObject.get());
+            }else{
+                consentObjectHIPRepository.save(consentObjectHIP);
+            }
         } catch (Exception e) {
             // TODO: handle exception
             return new ResponseEntity<>("Could not save the consent object in HIP", HttpStatusCode.valueOf(500));
