@@ -1,5 +1,6 @@
 package com.ehrbridge.hospital.service;
 
+import com.ehrbridge.hospital.dto.consent.CMConsentObject;
 import com.ehrbridge.hospital.dto.consent.ConsentJSONObj;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPRequest;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPResponse;
@@ -24,7 +25,7 @@ import com.ehrbridge.hospital.entity.PatientRecords;
 import com.ehrbridge.hospital.entity.ReceivedPatientRecords;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ehrbridge.hospital.entity.ConsentObjectHIP;
-
+import com.ehrbridge.hospital.entity.ConsentObjectHIU;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.RequiredArgsConstructor;
 
@@ -240,14 +241,29 @@ public class DataRequestService {
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Patient could not be found").build(), HttpStatusCode.valueOf(200));
         }
 
+        // Compare dates with consent object
+        // Convert string to string array
+        //Iterate through hiTypes and departments
+        String[] hiTypesRequest = this.splitToArray(request.getHiType());
+        String[] departmentsRequest = this.splitToArray(request.getDepartments());
+
         List<PatientRecords> patientRecords = patientRecordsRepository.findAll();
         List<PatientRecords> patientRecordsForID = new ArrayList<PatientRecords>();
 
         for (PatientRecords record : patientRecords) {
             if (record.getPatientID().equals(patientID)) {
-                if (record.getTimeStamp().compareToIgnoreCase(request.getDateFrom()) >= 0){
-                    if(record.getTimeStamp().compareToIgnoreCase(request.getDateTo()) <= 0) {
-                        patientRecordsForID.add(record);
+                if (record.getTimeStamp().compareTo(request.getDateFrom()) >= 0){
+                    if(record.getTimeStamp().compareTo(request.getDateTo()) <= 0) {
+                        for(String hiT : hiTypesRequest) {
+                            if (record.getHiType().equals(hiT)) {
+                                for (String dep : departmentsRequest) {
+                                    if(record.getDepartment().equals(dep)) {
+                                        patientRecordsForID.add(record);
+                                    }
+                                }
+                            }
+                        }
+                        
                     }
                 }
 
@@ -277,6 +293,20 @@ public class DataRequestService {
 
 
     }
+
+    private String[] splitToArray(String strArr) {
+        strArr = strArr.substring(1, strArr.length() - 1);
+        String[] strs = strArr.split(",");
+        return strs;
+    }
+
+    private bool makeSubset(DataRequestHIPRequest request, CMConsentObject consentObject) {
+        if (request.getDateFrom().compareTo(consentObject.getconsentFrom) < 0) {
+            request.setDateFrom(consentFrom);
+        }
+        if (request.getDateTo().compareTo(consentTo) > 0) {
+            request.setDateTo(consentTo);
+        }
 
 
 

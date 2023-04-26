@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Date;  
 
 @Data
 @NoArgsConstructor
@@ -19,7 +20,9 @@ public class DataRequestGatewayRequest {
     private String hipID;
     private String request_msg;
     private String callbackURL;
-    private String dateFrom;
-    private String dateTo;
+    private Date dateFrom;
+    private Date dateTo;
+    private String hiType;
+    private String departments;
 
 }

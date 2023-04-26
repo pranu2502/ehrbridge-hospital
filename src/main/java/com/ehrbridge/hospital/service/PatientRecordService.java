@@ -84,7 +84,7 @@ public class PatientRecordService {
         }
         final SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
 
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        
         var patientRecord  = PatientRecords.builder()
                 .bp(request.getMetaData().getBp())
                 .height(request.getMetaData().getHeight())
@@ -97,7 +97,7 @@ public class PatientRecordService {
                 .department(request.getDepartment())
                 .doctorID(request.getDoctorID())
                 .patientID(request.getPatientID())
-                .timeStamp(sdf1.format(timestamp))
+                .timeStamp(new Date())
                 .build();
 
         try {

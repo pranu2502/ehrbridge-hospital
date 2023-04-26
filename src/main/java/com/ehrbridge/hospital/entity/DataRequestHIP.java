@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Date;  
 
 @Data
 @AllArgsConstructor
@@ -23,7 +24,9 @@ public class DataRequestHIP {
     private String hiuID;
     private String request_message;
     private String callback_url;
-    private String dateFrom;
-    private String dateTo;
+    private Date dateFrom;
+    private Date dateTo;
+    private String hiType;
+    private String[] departments;
 
 }
