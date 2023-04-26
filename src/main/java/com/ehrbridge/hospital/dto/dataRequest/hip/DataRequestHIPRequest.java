@@ -9,7 +9,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DataRequestHIPRequest {
-    private String encrypted_consent_object;
+    private String signed_consent_object;
     private String txnID;
     private String requestID;
     private String ehrbID;
