@@ -1,5 +1,6 @@
 package com.ehrbridge.hospital.service;
 
+import com.ehrbridge.hospital.config.RSAHelperConfig;
 import com.ehrbridge.hospital.dto.consent.CMConsentObject;
 import com.ehrbridge.hospital.dto.consent.ConsentJSONObj;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPRequest;
@@ -30,6 +31,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ehrbridge.hospital.entity.ConsentObjectHIP;
 
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -46,6 +54,7 @@ import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.web.client.RestTemplate;
 
@@ -108,27 +117,29 @@ public class DataRequestService {
         return null;
     }
 
-    public static boolean matchConsentObjects(String signed_obj_hiu, String signed_obj_gateway, RSAPublicKey public_key){
+    public static CMConsentObject decodeSignedConsentObject(String signed_obj_hiu, RSAPublicKey public_key){
         Algorithm algorithm = Algorithm.RSA256(public_key);
         JWTVerifier verifier = JWT.require(algorithm).build();
-        DecodedJWT decoded_obj_gateway = verifier.verify(signed_obj_gateway);
         DecodedJWT decoded_obj_hiu = verifier.verify(signed_obj_hiu);
-        String jsonStrGateway = decoded_obj_gateway.getClaim("consent_obj").toString();
         String jsonStrHIU  = decoded_obj_hiu.getClaim("consent_obj").toString();
         ObjectMapper mapper = new ObjectMapper();
         try {
-            ConsentJSONObj consentObjGateway = mapper.readValue(jsonStrGateway, ConsentJSONObj.class);
-            ConsentJSONObj consentObjHIU = mapper.readValue(jsonStrHIU, ConsentJSONObj.class);
-            if(Objects.deepEquals(consentObjGateway, consentObjHIU)){
-               return true;
-            }
-            return false;
 
-        } catch (JsonProcessingException e) {
+            Object consentObjGateways = mapper.readValue(jsonStrHIU, Object.class);
+            jsonStrHIU = consentObjGateways.toString();
+            System.out.println(jsonStrHIU);
+            Gson gson =  new GsonBuilder().registerTypeAdapter(Date.class, (JsonDeserializer) (json, typeOfT, context) -> new Date(json.getAsLong())).create();
+            CMConsentObject consentObjHIU = gson.fromJson(jsonStrHIU, CMConsentObject.class);
+            System.out.println(consentObjHIU);
+            return consentObjHIU;
+
+        } catch (JWTVerificationException e) {
             // TODO Auto-generated catch block
+            return null;
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
 
     }
 
@@ -154,6 +165,7 @@ public class DataRequestService {
         String data_request_id = dataRequest.getData_request_id();
         var transaction = consentTransactionRepository.findByTxnID(request.getTxnID()).orElseThrow();
         String callBackURL = "https://localhost:" + PORT + "/api/v1/data/receive-data-hiu";
+        String publicKeyDataCallback = RSAHelperConfig.rsaPublicKeyObjectToPEM(RSAHelperConfig.RSA_PUB);
         DataRequestGatewayRequest gatewayRequest = DataRequestGatewayRequest
                 .builder()
                 .signed_consent_object(transaction.getSigned_consent_object())
@@ -237,13 +249,14 @@ public class DataRequestService {
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Unable to parse public key recieved from gateway").build(), HttpStatusCode.valueOf(501));
         }
 
-        String signed_object_gateway = consentObjectHIP.get().getEncrypted_consent_object();
-        String signed_object_hiu = request.getEncrypted_consent_object();
-        if(matchConsentObjects(signed_object_hiu, signed_object_gateway, publicKey)== false){
-            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object from HIU, does not match with consent object received from the gateway").build(), HttpStatusCode.valueOf(403));
+        // String signed_object_gateway = consentObjectHIP.getSigned_consent_object();
+        String signed_object_hiu = request.getSigned_consent_object();
+        // verify consent object and
+        // deserialize consent object
+        CMConsentObject cmConsentObject = decodeSignedConsentObject(signed_object_hiu, publicKey);
+        if (cmConsentObject == null) return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object verification failed").build(), HttpStatusCode.valueOf(403));
 
-        }
-
+        System.out.println(cmConsentObject.getPermission().getConsent_validity());
         //TODO: Send FHIR via the call back link provided.
 
         String ehrbID = request.getEhrbID();

@@ -21,5 +21,6 @@ public class CMConsentObject {
     public String[] hiType;
     public String[] departments;
     public PermissionConsentObjectCM permission;
+    public String consentDescription;
     public String consent_status;
 }
