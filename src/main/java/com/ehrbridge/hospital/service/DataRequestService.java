@@ -3,6 +3,7 @@ package com.ehrbridge.hospital.service;
 import com.ehrbridge.hospital.dto.consent.CMConsentObject;
 import com.ehrbridge.hospital.dto.consent.ConsentJSONObj;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPRequest;
+import java.text.SimpleDateFormat;  
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequestByIDResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequests;
@@ -204,45 +205,45 @@ public class DataRequestService {
     }
 
     public ResponseEntity<DataRequestHIPResponse> requestDataHIP(DataRequestHIPRequest request) {
-        var dataRequest = DataRequestHIP.builder()
-                .signed_consent_object(request.getSigned_consent_object())
-                .txnID(request.getTxnID())
-                .requestID(request.getRequestID())
-                .ehrbID(request.getEhrbID())
-                .hiuID(request.getHiuID())
-                .request_message(request.getRequest_msg())
-                .callback_url(request.getCallbackURL())
-                .dateFrom(request.getDateFrom())
-                .dateTo(request.getDateTo())
-                .build();
-        try {
-            dataRequestsHIPRepository.save(dataRequest);
-        } catch (Exception e) {
-            // TODO: handle exception
-            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Could not save data request to HIP database").build(), HttpStatusCode.valueOf(500));
-        }
+        // var dataRequest = DataRequestHIP.builder()
+        //         .signed_consent_object(request.getSigned_consent_object())
+        //         .txnID(request.getTxnID())
+        //         .requestID(request.getRequestID())
+        //         .ehrbID(request.getEhrbID())
+        //         .hiuID(request.getHiuID())
+        //         .request_message(request.getRequest_msg())
+        //         .callback_url(request.getCallbackURL())
+        //         .dateFrom(request.getDateFrom())
+        //         .dateTo(request.getDateTo())
+        //         .build();
+        // try {
+        //     dataRequestsHIPRepository.save(dataRequest);
+        // } catch (Exception e) {
+        //     // TODO: handle exception
+        //     return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Could not save data request to HIP database").build(), HttpStatusCode.valueOf(500));
+        // }
 
-        ConsentObjectHIP consentObjectHIP;
+        // ConsentObjectHIP consentObjectHIP;
 
-        try{
-             consentObjectHIP = consentObjectHIPRepository.findByTxnID(request.getTxnID()).orElseThrow();
-        }
-        catch(Exception e)
-        {
-            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("TxnID in data request is invalid!").build(), HttpStatusCode.valueOf(403));
-        }
-        //fetch the encrypted consent object from ConsentObjectHIP
-        RSAPublicKey publicKey = rsaPEMToPublicKeyObject(consentObjectHIP.getPublic_key());
-        if(publicKey == null){
-            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Unable to parse public key recieved from gateway").build(), HttpStatusCode.valueOf(501));
-        }
+        // try{
+        //      consentObjectHIP = consentObjectHIPRepository.findByTxnID(request.getTxnID()).orElseThrow();
+        // }
+        // catch(Exception e)
+        // {
+        //     return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("TxnID in data request is invalid!").build(), HttpStatusCode.valueOf(403));
+        // }
+        // //fetch the encrypted consent object from ConsentObjectHIP
+        // RSAPublicKey publicKey = rsaPEMToPublicKeyObject(consentObjectHIP.getPublic_key());
+        // if(publicKey == null){
+        //     return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Unable to parse public key recieved from gateway").build(), HttpStatusCode.valueOf(501));
+        // }
 
-        String signed_object_gateway = consentObjectHIP.get().getEncrypted_consent_object();
-        String signed_object_hiu = request.getEncrypted_consent_object();
-        if(matchConsentObjects(signed_object_hiu, signed_object_gateway, publicKey)== false){
-            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object from HIU, does not match with consent object received from the gateway").build(), HttpStatusCode.valueOf(403));
+        // String signed_object_gateway = consentObjectHIP.get().getEncrypted_consent_object();
+        // String signed_object_hiu = request.getEncrypted_consent_object();
+        // if(matchConsentObjects(signed_object_hiu, signed_object_gateway, publicKey)== false){
+        //     return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object from HIU, does not match with consent object received from the gateway").build(), HttpStatusCode.valueOf(403));
 
-        }
+        // }
 
         //TODO: Send FHIR via the call back link provided.
 
@@ -258,12 +259,17 @@ public class DataRequestService {
         if(patientID == null) {
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Patient could not be found").build(), HttpStatusCode.valueOf(200));
         }
-
-        // Compare dates with consent object
-        // Convert string to string array
-        //Iterate through hiTypes and departments
+        // Call below function
+        // request = this.makeSubset(request, consentObject) 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+ 
+        // Date dataFrom = sdf.parse(request.getDateFrom());
+        // Date dateTo = sdf.parse(request.getDateTo());
         String[] hiTypesRequest = this.splitToArray(request.getHiType());
         String[] departmentsRequest = this.splitToArray(request.getDepartments());
+
+        System.out.println(request.getDateFrom());
+        System.out.println(request.getDateTo());
 
         List<PatientRecords> patientRecords = patientRecordsRepository.findAll();
         List<PatientRecords> patientRecordsForID = new ArrayList<PatientRecords>();
@@ -280,14 +286,12 @@ public class DataRequestService {
                                     }
                                 }
                             }
-                        }
-                        
+                        }   
                     }
                 }
 
             }
         }
-
 
         ReceiveDataCallbackURLRequest receiveDataCallbackURLRequest = new ReceiveDataCallbackURLRequest(patientRecordsForID, ehrbID, request.getTxnID());
 
@@ -318,13 +322,44 @@ public class DataRequestService {
         return strs;
     }
 
-    private bool makeSubset(DataRequestHIPRequest request, CMConsentObject consentObject) {
-        if (request.getDateFrom().compareTo(consentObject.getconsentFrom) < 0) {
-            request.setDateFrom(consentFrom);
+    private DataRequestHIPRequest makeSubset(DataRequestHIPRequest request, CMConsentObject consentObject) {
+        if (request.getDateFrom().compareTo(consentObject.getPermission().getDateRange().getFrom()) < 0) {
+            request.setDateFrom(consentObject.getPermission().getDateRange().getFrom());
         }
-        if (request.getDateTo().compareTo(consentTo) > 0) {
-            request.setDateTo(consentTo);
+        if (request.getDateTo().compareTo(consentObject.getPermission().getDateRange().getTo()) > 0) {
+            request.setDateTo(consentObject.getPermission().getDateRange().getTo());
         }
+        String[] requestHiTypes = this.splitToArray(request.getHiType());
+        String finalHiTypes = "[";
+        for(String requestHiType : requestHiTypes) {
+            for (String consentHiType : consentObject.getHiType()) {
+                if (consentHiType.equals(requestHiType)) {
+                    finalHiTypes += consentHiType;
+                    finalHiTypes += ",";
+                    break;
+                }
+            }
+        }
+        finalHiTypes += "]";
+        request.setHiType(finalHiTypes);
+
+        String[] requestDepartments = this.splitToArray(request.getDepartments());
+        String finalDepartments = "[";
+        for(String requestDepartment : requestDepartments) {
+            for (String consentDepartment : consentObject.getDepartments()) {
+                if (consentDepartment.equals(requestDepartment)) {
+                    finalHiTypes += consentDepartment;
+                    finalHiTypes += ",";
+                    break;
+                }
+            }
+        }
+        finalHiTypes += "]";
+        request.setHiType(finalDepartments);
+
+        return request;
+    }
+
 
 
     public ResponseEntity<FetchDataRequests> fetchDataRequestsHIP() {
