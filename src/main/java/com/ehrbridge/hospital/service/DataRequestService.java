@@ -4,6 +4,7 @@ import com.ehrbridge.hospital.config.RSAHelperConfig;
 import com.ehrbridge.hospital.dto.consent.CMConsentObject;
 import com.ehrbridge.hospital.dto.consent.ConsentJSONObj;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPRequest;
+import java.text.SimpleDateFormat;  
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequestByIDResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequests;
@@ -29,7 +30,7 @@ import com.ehrbridge.hospital.entity.PatientRecords;
 import com.ehrbridge.hospital.entity.ReceivedPatientRecords;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ehrbridge.hospital.entity.ConsentObjectHIP;
-
+import com.ehrbridge.hospital.entity.ConsentObjectHIU;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -271,21 +272,39 @@ public class DataRequestService {
         if(patientID == null) {
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Patient could not be found").build(), HttpStatusCode.valueOf(200));
         }
+        // Call below function
+        // request = this.makeSubset(request, consentObject) 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+ 
+        // Date dataFrom = sdf.parse(request.getDateFrom());
+        // Date dateTo = sdf.parse(request.getDateTo());
+        String[] hiTypesRequest = this.splitToArray(request.getHiType());
+        String[] departmentsRequest = this.splitToArray(request.getDepartments());
+
+        System.out.println(request.getDateFrom());
+        System.out.println(request.getDateTo());
 
         List<PatientRecords> patientRecords = patientRecordsRepository.findAll();
         List<PatientRecords> patientRecordsForID = new ArrayList<PatientRecords>();
 
         for (PatientRecords record : patientRecords) {
             if (record.getPatientID().equals(patientID)) {
-                if (record.getTimeStamp().compareToIgnoreCase(request.getDateFrom()) >= 0){
-                    if(record.getTimeStamp().compareToIgnoreCase(request.getDateTo()) <= 0) {
-                        patientRecordsForID.add(record);
+                if (record.getTimeStamp().compareTo(request.getDateFrom()) >= 0){
+                    if(record.getTimeStamp().compareTo(request.getDateTo()) <= 0) {
+                        for(String hiT : hiTypesRequest) {
+                            if (record.getHiType().equals(hiT)) {
+                                for (String dep : departmentsRequest) {
+                                    if(record.getDepartment().equals(dep)) {
+                                        patientRecordsForID.add(record);
+                                    }
+                                }
+                            }
+                        }   
                     }
                 }
 
             }
         }
-
 
         ReceiveDataCallbackURLRequest receiveDataCallbackURLRequest = new ReceiveDataCallbackURLRequest(patientRecordsForID, ehrbID, request.getTxnID());
 
@@ -309,6 +328,51 @@ public class DataRequestService {
 
 
     }
+
+    private String[] splitToArray(String strArr) {
+        strArr = strArr.substring(1, strArr.length() - 1);
+        String[] strs = strArr.split(",");
+        return strs;
+    }
+
+    private DataRequestHIPRequest makeSubset(DataRequestHIPRequest request, CMConsentObject consentObject) {
+        if (request.getDateFrom().compareTo(consentObject.getPermission().getDateRange().getFrom()) < 0) {
+            request.setDateFrom(consentObject.getPermission().getDateRange().getFrom());
+        }
+        if (request.getDateTo().compareTo(consentObject.getPermission().getDateRange().getTo()) > 0) {
+            request.setDateTo(consentObject.getPermission().getDateRange().getTo());
+        }
+        String[] requestHiTypes = this.splitToArray(request.getHiType());
+        String finalHiTypes = "[";
+        for(String requestHiType : requestHiTypes) {
+            for (String consentHiType : consentObject.getHiType()) {
+                if (consentHiType.equals(requestHiType)) {
+                    finalHiTypes += consentHiType;
+                    finalHiTypes += ",";
+                    break;
+                }
+            }
+        }
+        finalHiTypes += "]";
+        request.setHiType(finalHiTypes);
+
+        String[] requestDepartments = this.splitToArray(request.getDepartments());
+        String finalDepartments = "[";
+        for(String requestDepartment : requestDepartments) {
+            for (String consentDepartment : consentObject.getDepartments()) {
+                if (consentDepartment.equals(requestDepartment)) {
+                    finalHiTypes += consentDepartment;
+                    finalHiTypes += ",";
+                    break;
+                }
+            }
+        }
+        finalHiTypes += "]";
+        request.setHiType(finalDepartments);
+
+        return request;
+    }
+
 
 
     public ResponseEntity<FetchDataRequests> fetchDataRequestsHIP() {

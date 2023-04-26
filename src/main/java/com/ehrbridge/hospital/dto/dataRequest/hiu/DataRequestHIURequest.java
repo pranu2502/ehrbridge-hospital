@@ -3,6 +3,7 @@ package com.ehrbridge.hospital.dto.dataRequest.hiu;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Date;  
 
 @Data
 @AllArgsConstructor
@@ -13,6 +14,8 @@ public class DataRequestHIURequest {
     private String hipID;
     private String doctorID;
     private String request_msg;
-    private String dateFrom;
-    private String dateTo;
+    private Date dateFrom;
+    private Date dateTo;
+    private String hiType;
+    private String departments;
 }

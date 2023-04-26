@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Date;  
 
 @Entity
 @AllArgsConstructor
@@ -20,6 +21,8 @@ public class DataRequestsHIU {
     private String request_message;
     private String ehrbID;
     private String hipID;
-    private String dateFrom;
-    private String dateTo;
+    private Date dateFrom;
+    private Date dateTo;
+    private String hiType;
+    private String[] departments;
 }

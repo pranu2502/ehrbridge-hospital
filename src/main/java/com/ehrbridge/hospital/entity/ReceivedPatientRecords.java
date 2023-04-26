@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Date;  
 
 @Data
 @AllArgsConstructor
@@ -29,5 +30,5 @@ public class ReceivedPatientRecords {
     private String problems;
     private String diagnosis;
     private String prescription;
-    private String timeStamp;
+    private Date timeStamp;
 }
