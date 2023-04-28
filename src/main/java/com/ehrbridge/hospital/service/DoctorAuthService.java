@@ -59,7 +59,9 @@ public class DoctorAuthService {
         Optional<Doctor> user;
         try{
             user = doctorRepository.findByEmailAddress(request.getEmail());
+            System.out.println("checkkkk");
         }catch(Exception e){
+            System.out.println("checjkdhjds");
             e.printStackTrace();
             return new ResponseEntity<LoginResponse>(LoginResponse.builder().message("User does not exist!").build(), HttpStatusCode.valueOf(403));
         }

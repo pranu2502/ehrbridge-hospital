@@ -38,6 +38,8 @@ public class DoctorDetailsContoller {
 
     @GetMapping("/get-all")
     public ResponseEntity<FetchAllDoctorsResponse> getAllDoctors() {
+
+        System.out.println("ejhvhkj");
         return doctorFetchService.getAllDoctors();
     }
 }

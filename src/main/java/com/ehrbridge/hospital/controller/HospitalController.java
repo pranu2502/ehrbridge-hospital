@@ -1,5 +1,6 @@
 package com.ehrbridge.hospital.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,15 +13,17 @@ import com.ehrbridge.hospital.dto.hospital.FetchAllHospitalResponse;
 import com.ehrbridge.hospital.dto.hospital.Hospital;
 import com.ehrbridge.hospital.service.HospitalService;
 
-@RestController
 @CrossOrigin
+@RestController
 @RequestMapping("/api/v1/hospitals")
+@RequiredArgsConstructor
 public class HospitalController {
     @Autowired
     private HospitalService hospitalService;
 
     @GetMapping("/fetch-all")
     public ResponseEntity<FetchAllHospitalResponse> fetchAllHospitals(){
+        System.out.println("yayyy");
         return hospitalService.fetchHospitals();
     }
     

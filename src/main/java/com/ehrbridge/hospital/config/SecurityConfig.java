@@ -18,6 +18,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 
 @Configuration
@@ -34,16 +36,17 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf()
                 .disable()
-                .cors()
-                .disable()
+                .cors(cors -> cors.disable())
+//                .disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/auth/**", "/api/v1/patient/**", "/api/v1/data/request-data-hip", "/api/v1/consent/recieve-hip", "/api/v1/consent/recieve-hiu", "/api/v1/data/receive-data-hiu")
-
+                .requestMatchers("/api/v1/**", "/api/v1/auth/**", "/api/v1/patient/**", "/api/v1/data/request-data-hip", "/api/v1/consent/recieve-hip", "/api/v1/consent/recieve-hiu", "/api/v1/data/receive-data-hiu")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
