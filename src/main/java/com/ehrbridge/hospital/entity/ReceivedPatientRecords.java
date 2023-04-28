@@ -17,6 +17,7 @@ public class ReceivedPatientRecords {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String recordID;
+    private String requestID;
     private String patientID;
     private String ehrbID;
     private String txnID;

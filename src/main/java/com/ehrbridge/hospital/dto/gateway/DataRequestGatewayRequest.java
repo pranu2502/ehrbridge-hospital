@@ -22,7 +22,7 @@ public class DataRequestGatewayRequest {
     private String callbackURL;
     private Date dateFrom;
     private Date dateTo;
-    private String hiType;
-    private String departments;
+    private String[] hiType;
+    private String[] departments;
 
 }

@@ -16,6 +16,6 @@ public class DataRequestHIURequest {
     private String request_msg;
     private Date dateFrom;
     private Date dateTo;
-    private String hiType;
-    private String departments;
+    private String[] hiType;
+    private String[] departments;
 }

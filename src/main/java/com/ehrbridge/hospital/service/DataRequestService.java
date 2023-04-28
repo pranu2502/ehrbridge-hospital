@@ -283,10 +283,13 @@ public class DataRequestService {
  
         // Date dataFrom = sdf.parse(request.getDateFrom());
         // Date dateTo = sdf.parse(request.getDateTo());
-        String[] hiTypesRequest = this.splitToArray(request.getHiType());
-        String[] departmentsRequest = this.splitToArray(request.getDepartments());
+        String[] hiTypesRequest = request.getHiType();
+        String[] departmentsRequest = request.getDepartments();
         System.out.println(hiTypesRequest);
         System.out.println(departmentsRequest);
+        for (String element: departmentsRequest) {
+            System.out.println(element);
+        }
         System.out.println(request.getDateFrom());
         System.out.println(request.getDateTo());
 
@@ -351,7 +354,7 @@ public class DataRequestService {
         if (request.getDateTo().compareTo(consentObject.getPermission().getDateRange().getTo()) > 0) {
             request.setDateTo(consentObject.getPermission().getDateRange().getTo());
         }
-        String[] requestHiTypes = this.splitToArray(request.getHiType());
+        String[] requestHiTypes = request.getHiType();
         String finalHiTypes = "[";
         for(String requestHiType : requestHiTypes) {
             for (String consentHiType : consentObject.getHiType()) {
@@ -362,10 +365,10 @@ public class DataRequestService {
                 }
             }
         }
-        finalHiTypes += "]";
-        request.setHiType(finalHiTypes);
+        // finalHiTypes += "]";
+        // request.setHiType(finalHiTypes);
 
-        String[] requestDepartments = this.splitToArray(request.getDepartments());
+        String[] requestDepartments = request.getDepartments();
         String finalDepartments = "[";
         for(String requestDepartment : requestDepartments) {
             for (String consentDepartment : consentObject.getDepartments()) {
@@ -376,8 +379,8 @@ public class DataRequestService {
                 }
             }
         }
-        finalHiTypes += "]";
-        request.setHiType(finalDepartments);
+        // finalHiTypes += "]";
+        // request.setHiType(finalDepartments);
 
         return request;
     }

@@ -1,8 +1,9 @@
 package com.ehrbridge.hospital.service;
 
+import com.ehrbridge.hospital.dto.dataRequest.hiu.FetchReceivedRecordsResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLRequest;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLResponse;
-
+import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveRecordResponse;
 import com.ehrbridge.hospital.repository.ReceivedDataRecordsRepository;
 
 import com.ehrbridge.hospital.entity.PatientRecords;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,5 +49,25 @@ public class DataReceiveService {
 
 
     } 
+
+    public ResponseEntity<FetchReceivedRecordsResponse> fetchAllRecordsByPatientID(String patientID){
+        try {
+            List<ReceivedPatientRecords> patientRecords = ReceivedDataRecordsRepository.findAllByPatientID(patientID);
+            return new ResponseEntity<FetchReceivedRecordsResponse>(FetchReceivedRecordsResponse.builder().patientData(patientRecords).build(), HttpStatusCode.valueOf(200));
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return new ResponseEntity<FetchReceivedRecordsResponse>(HttpStatusCode.valueOf(500));
+    }
+
+    public ResponseEntity<ReceiveRecordResponse> fetchRecordByID(String recordID){
+        try {
+            var patientRecord = ReceivedDataRecordsRepository.findById(recordID);
+            return new ResponseEntity<ReceiveRecordResponse>(ReceiveRecordResponse.builder().patientData(patientRecord.get()).build(), HttpStatusCode.valueOf(200));
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        return new ResponseEntity<ReceiveRecordResponse>(HttpStatusCode.valueOf(500));
+    }
     
 }

@@ -22,6 +22,6 @@ public class DataRequestHIPRequest {
     private Date dateFrom;
     @JsonFormat(pattern="yyyy-MM-dd' 'HH:mm:ss.SSS")
     private Date dateTo;
-    private String hiType;
-    private String departments;
+    private String[] hiType;
+    private String[] departments;
 }
