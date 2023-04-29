@@ -14,4 +14,6 @@ public interface ConsentObjectHIURepository extends JpaRepository<ConsentObjectH
     @Query(value = "select * from consent_objects_hiu where doctor_ehrb_id = ?1", nativeQuery = true)
     List<ConsentObjectHIU> findByDoctorEhrbID(String doctorEhrbID);
 
+    
+    // Optional<ConsentObjectHIU> findByConsent_object_id(String consent_object_id);
 }

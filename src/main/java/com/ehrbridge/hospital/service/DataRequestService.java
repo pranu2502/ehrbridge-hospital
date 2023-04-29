@@ -143,6 +143,32 @@ public class DataRequestService {
 
     }
 
+    public static CMConsentObject decodeSignedConsentObjectNoVerify(String signed_obj_hiu){
+        System.out.println("HAAAAAAAAAAAAAAAAAAAAAAAAAa");
+        System.out.println(signed_obj_hiu);
+        DecodedJWT decoded_obj_hiu = JWT.decode(signed_obj_hiu);
+        String jsonStrHIU  = decoded_obj_hiu.getClaim("consent_obj").toString();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+
+            Object consentObjGateways = mapper.readValue(jsonStrHIU, Object.class);
+            jsonStrHIU = consentObjGateways.toString();
+            System.out.println(jsonStrHIU);
+            Gson gson =  new GsonBuilder().registerTypeAdapter(Date.class, (JsonDeserializer) (json, typeOfT, context) -> new Date(json.getAsLong())).create();
+            CMConsentObject consentObjHIU = gson.fromJson(jsonStrHIU, CMConsentObject.class);
+            System.out.println(consentObjHIU);
+            return consentObjHIU;
+
+        } catch (JWTVerificationException e) {
+            // TODO Auto-generated catch block
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
     public ResponseEntity<DataRequestHIUResponse> requestDataHIU(DataRequestHIURequest request)
     {
         var dataRequest = DataRequestsHIU.builder()

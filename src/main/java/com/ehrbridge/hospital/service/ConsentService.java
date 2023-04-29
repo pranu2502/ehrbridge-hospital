@@ -1,5 +1,6 @@
 package com.ehrbridge.hospital.service;
 
+import com.ehrbridge.hospital.dto.consent.CMConsentObject;
 import com.ehrbridge.hospital.dto.consent.FetchConsentObjsResponse;
 import com.ehrbridge.hospital.dto.consent.FetchConsentReqsResponse;
 import com.ehrbridge.hospital.dto.consent.FetchConsentTransactionResponse;
@@ -126,7 +127,19 @@ public class ConsentService {
         consentTransaction.setConsent_status(request.getConsent_status());
         consentTransaction.setSigned_consent_object(request.getSigned_consent_object());
 
+        // decode signed consent object
+        CMConsentObject consent = DataRequestService.decodeSignedConsentObjectNoVerify(request.getSigned_consent_object());
+        
+        // save consent_objects_hiu
+        ConsentObjectHIU consent_hiu = consentTransaction.getConsent_object_id();
+        consent_hiu.setDate_from(consent.getPermission().getDateRange().getFrom());
+        consent_hiu.setDate_to(consent.getPermission().getDateRange().getTo());
+        consent_hiu.setValidity(consent.getPermission().getConsent_validity());
+        consent_hiu.setDepartments(Arrays.toString(consent.getDepartments()));
+        consent_hiu.setHi_type(Arrays.toString(consent.getHiType()));
+
         try {
+            consentObjectRepository.save(consent_hiu);
             consentTransactionRepository.save(consentTransaction);
         } catch (Exception e) {
             // TODO: handle exception
