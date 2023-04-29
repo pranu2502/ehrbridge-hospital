@@ -3,7 +3,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/hospitaldb
+    url: jdbc:mysql://localhost:3306/hospitaldbhiu
     username: user1
     password: user1@sql
     
@@ -16,12 +16,12 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
 hospital:
-  id: af913885-d38b-46a7-a586-f2224ea80c2a
+  id: 908cf94b-7707-44c4-ad42-783d6461d4b8
 ehrbridge:
   app:
     jwtSecret: 655468576D5A7133743677397A24432646294A404E635266556A586E32723575
   gateway:
-    apiKey: ESgIEQY888Q2hdQ0T53FQircyv7wQetY
+    apiKey: Kw8PoqtTHNvftRRWPGIX3NgPKtkIiwMj
     host: http://localhost:8080
     consent-request:
       endpoint: /api/v1/consent/generate
