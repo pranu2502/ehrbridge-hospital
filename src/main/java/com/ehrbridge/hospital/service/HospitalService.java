@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.ehrbridge.hospital.dto.hospital.FetchAllHospitalResponse;
 import com.ehrbridge.hospital.dto.hospital.Hospital;
+import com.ehrbridge.hospital.dto.hospital.PatientServerHospitalsResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -38,11 +39,11 @@ public class HospitalService {
     @Autowired
     private HttpHeaders headers;
 
-    public ResponseEntity<FetchAllHospitalResponse> fetchHospitals(){
-        String GATEWAY_REQ_ENDPOINT = GATEWAY_HOST + GATEWAY_HOSPITAL_ALL_REQ_ENDPOINT;
+    public ResponseEntity<PatientServerHospitalsResponse> fetchHospitals(String ehrbID){
+        String GATEWAY_REQ_ENDPOINT = GATEWAY_HOST + GATEWAY_HOSPITAL_ALL_REQ_ENDPOINT + "?ehrbID=" + ehrbID;
         try {
             // HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
-            ResponseEntity<FetchAllHospitalResponse> responseEntity = rest.exchange(GATEWAY_REQ_ENDPOINT, HttpMethod.GET, new HttpEntity<>(headers), FetchAllHospitalResponse.class);
+            ResponseEntity<PatientServerHospitalsResponse> responseEntity = rest.exchange(GATEWAY_REQ_ENDPOINT, HttpMethod.GET, new HttpEntity<>(headers), PatientServerHospitalsResponse.class);
             if(responseEntity.getStatusCode().value() == 200){
                 return responseEntity;
             }
@@ -50,7 +51,7 @@ public class HospitalService {
             // TODO: handle exception
             e.printStackTrace();
         }
-        return new ResponseEntity<FetchAllHospitalResponse>(FetchAllHospitalResponse.builder().build(), HttpStatusCode.valueOf(501));
+        return new ResponseEntity<PatientServerHospitalsResponse>(PatientServerHospitalsResponse.builder().build(), HttpStatusCode.valueOf(501));
     }
 
     public ResponseEntity<Hospital> fetchHospital(String hospitalID){
