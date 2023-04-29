@@ -30,5 +30,6 @@ public class DataRequestHIP {
     private Date dateTo;
     private String hiType;
     private String[] departments;
+    private String rsa_pubkey;
 
 }
