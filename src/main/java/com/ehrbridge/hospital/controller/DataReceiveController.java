@@ -1,6 +1,7 @@
 package com.ehrbridge.hospital.controller;
 
 
+import com.ehrbridge.hospital.dto.dataRequest.hiu.EncryptedPatientDataObject;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLRequest;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLResponse;
 import com.ehrbridge.hospital.service.DataReceiveService;
@@ -19,7 +20,7 @@ public class DataReceiveController {
     private final DataReceiveService dataReceiveService;
 
     @PostMapping("/receive-data-hiu")
-    public ResponseEntity<ReceiveDataCallbackURLResponse> requestDataHIU(@RequestBody ReceiveDataCallbackURLRequest request)
+    public ResponseEntity<ReceiveDataCallbackURLResponse> requestDataHIU(@RequestBody EncryptedPatientDataObject request)
     {
         return dataReceiveService.receiveDataHIU(request);
     }

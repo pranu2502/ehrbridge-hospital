@@ -1,5 +1,6 @@
 package com.ehrbridge.hospital.service;
 
+import com.ehrbridge.hospital.config.RSACryptHelper;
 import com.ehrbridge.hospital.config.RSAHelperConfig;
 import com.ehrbridge.hospital.dto.consent.CMConsentObject;
 import com.ehrbridge.hospital.dto.consent.ConsentJSONObj;
@@ -8,11 +9,7 @@ import java.text.SimpleDateFormat;
 import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequestByIDResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hip.FetchDataRequests;
-import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIURequest;
-import com.ehrbridge.hospital.dto.dataRequest.hiu.DataRequestHIUResponse;
-import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLRequest;
-import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLResponse;
-import com.ehrbridge.hospital.dto.dataRequest.hiu.FetchDataRequestsHIUResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hiu.*;
 import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayRequest;
 import com.ehrbridge.hospital.dto.gateway.DataRequestGatewayResponse;
 import com.ehrbridge.hospital.entity.DataRequestHIP;
@@ -155,6 +152,7 @@ public class DataRequestService {
                 .request_message(request.getRequest_msg())
                 .dateFrom(request.getDateFrom())
                 .dateTo(request.getDateTo())
+                .rsa_pubkey(RSAHelperConfig.rsaPublicKeyObjectToPEM(RSAHelperConfig.RSA_PUB))
                 .build();
 
         try {
@@ -231,6 +229,7 @@ public class DataRequestService {
                 .callback_url(request.getCallbackURL())
                 .dateFrom(request.getDateFrom())
                 .dateTo(request.getDateTo())
+                .rsa_pubkey(request.getRsa_pubkey())
                 .build();
         try {
             dataRequestsHIPRepository.save(dataRequest);
@@ -248,7 +247,7 @@ public class DataRequestService {
         {
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("TxnID in data request is invalid!").build(), HttpStatusCode.valueOf(403));
         }
-        //fetch the encrypted consent object from ConsentObjectHIP
+        //fetch the signed consent object from ConsentObjectHIP
         RSAPublicKey publicKey = rsaPEMToPublicKeyObject(consentObjectHIP.getPublic_key());
         if(publicKey == null){
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Unable to parse public key recieved from gateway").build(), HttpStatusCode.valueOf(501));
@@ -316,14 +315,19 @@ public class DataRequestService {
         }
 
         ReceiveDataCallbackURLRequest receiveDataCallbackURLRequest = new ReceiveDataCallbackURLRequest(patientRecordsForID, ehrbID, request.getTxnID());
+        String encryptedData = RSACryptHelper.encryptCallbackData(receiveDataCallbackURLRequest, RSAHelperConfig.rsaPEMToPublicKeyObject(request.getRsa_pubkey()));
+        if (encryptedData == null) {
+            return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Failed to encrypt data").build(), HttpStatusCode.valueOf(500));
+        }
+        EncryptedPatientDataObject encryptedPatientDataObject = new EncryptedPatientDataObject(encryptedData);
 
 
         String callbackURL = request.getCallbackURL();
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         try {
-            String jsonConsentObj = ow.writeValueAsString(receiveDataCallbackURLRequest);
+            String jsonConsentObj = ow.writeValueAsString(encryptedPatientDataObject);
             HttpEntity<String> requestEntity = new HttpEntity<String>(jsonConsentObj, headers);
-            ResponseEntity<ReceiveDataCallbackURLResponse> responseEntity = rest.exchange(callbackURL, HttpMethod.POST, requestEntity, ReceiveDataCallbackURLResponse.class);
+            ResponseEntity<EncryptedPatientDataObject> responseEntity = rest.exchange(callbackURL, HttpMethod.POST, requestEntity, EncryptedPatientDataObject.class);
             if(responseEntity.getStatusCode().value() == 200) {
                 // return responseEntity;
                 return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent objects matched, Data transfer succesful").build(), HttpStatusCode.valueOf(200));
