@@ -30,6 +30,7 @@ public class DataRequestHIP {
     private Date dateTo;
     private String hiType;
     private String[] departments;
+    @Column(columnDefinition = "TEXT")
     private String rsa_pubkey;
 
 }

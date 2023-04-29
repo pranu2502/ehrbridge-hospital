@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class EncryptedPatientDataObject {
-    private String encrypted_data_object;
+    private byte[] encrypted_data_object;
+    private byte[] aes_secret;
 }

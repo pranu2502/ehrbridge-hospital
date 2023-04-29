@@ -182,6 +182,7 @@ public class DataRequestService {
                 .dateTo(request.getDateTo())
                 .hiType(request.getHiType())
                 .departments(request.getDepartments())
+                .rsa_pubkey(publicKeyDataCallback)
                 .build();
         ResponseEntity<DataRequestGatewayResponse> gatewayResponse = pushConsentRequestToGateway(gatewayRequest);
 
@@ -318,17 +319,15 @@ public class DataRequestService {
         }
 
         ReceiveDataCallbackURLRequest receiveDataCallbackURLRequest = new ReceiveDataCallbackURLRequest(patientRecordsForID, ehrbID, request.getTxnID());
-        String encryptedData = RSACryptHelper.encryptCallbackData(receiveDataCallbackURLRequest, RSAHelperConfig.rsaPEMToPublicKeyObject(request.getRsa_pubkey()));
+        EncryptedPatientDataObject encryptedData = RSACryptHelper.encryptCallbackData(receiveDataCallbackURLRequest, RSAHelperConfig.rsaPEMToPublicKeyObject(request.getRsa_pubkey()), RSAHelperConfig.AES_SECRET);
         if (encryptedData == null) {
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Failed to encrypt data").build(), HttpStatusCode.valueOf(500));
         }
-        EncryptedPatientDataObject encryptedPatientDataObject = new EncryptedPatientDataObject(encryptedData);
-
 
         String callbackURL = request.getCallbackURL();
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         try {
-            String jsonConsentObj = ow.writeValueAsString(encryptedPatientDataObject);
+            String jsonConsentObj = ow.writeValueAsString(encryptedData);
             HttpEntity<String> requestEntity = new HttpEntity<String>(jsonConsentObj, headers);
             ResponseEntity<EncryptedPatientDataObject> responseEntity = rest.exchange(callbackURL, HttpMethod.POST, requestEntity, EncryptedPatientDataObject.class);
             if(responseEntity.getStatusCode().value() == 200) {

@@ -28,6 +28,8 @@ public class DataReceiveService {
     private final ReceivedDataRecordsRepository ReceivedDataRecordsRepository;
 
     public ResponseEntity<ReceiveDataCallbackURLResponse> receiveDataHIU (EncryptedPatientDataObject encryptedPatientDataObject) {
+        System.out.println("HEHREHREHRHEHREHRHE");
+        System.out.println(encryptedPatientDataObject);
         ReceiveDataCallbackURLRequest request = RSACryptHelper.decryptCallbackData(encryptedPatientDataObject);
         if (request == null) {
             return new ResponseEntity<ReceiveDataCallbackURLResponse>(ReceiveDataCallbackURLResponse.builder().message("Failed to decrypt data").build(), HttpStatusCode.valueOf(500));
