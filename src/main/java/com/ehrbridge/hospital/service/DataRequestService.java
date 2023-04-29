@@ -67,6 +67,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 @Service
@@ -288,6 +289,10 @@ public class DataRequestService {
         // deserialize consent object
         CMConsentObject cmConsentObject = decodeSignedConsentObject(signed_object_hiu, publicKey);
         if (cmConsentObject == null) return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object verification failed").build(), HttpStatusCode.valueOf(403));
+        
+        // Check if consent object is valid
+        if (!cmConsentObject.getConsent_status().equals("GRANTED")) return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent has been declined or revoked").build(), HttpStatusCode.valueOf(403));
+        if (cmConsentObject.getPermission().getConsent_validity().compareTo(new Date()) < 0) return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent has expired").build(), HttpStatusCode.valueOf(403));
 
         System.out.println(cmConsentObject.getPermission().getConsent_validity());
         //TODO: Send FHIR via the call back link provided.
@@ -305,19 +310,18 @@ public class DataRequestService {
             return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Patient could not be found").build(), HttpStatusCode.valueOf(200));
         }
         // Call below function
-        // request = this.makeSubset(request, consentObject) 
+        request = this.makeSubset(request, cmConsentObject);
  
         // Date dataFrom = sdf.parse(request.getDateFrom());
         // Date dateTo = sdf.parse(request.getDateTo());
         String[] hiTypesRequest = request.getHiType();
         String[] departmentsRequest = request.getDepartments();
-        System.out.println(hiTypesRequest);
-        System.out.println(departmentsRequest);
+        
         for (String element: departmentsRequest) {
             System.out.println(element);
         }
-        System.out.println(request.getDateFrom());
-        System.out.println(request.getDateTo());
+        // System.out.println(request.getDateFrom());
+        // System.out.println(request.getDateTo());
 
         List<PatientRecords> patientRecords = patientRecordsRepository.findAll();
         List<PatientRecords> patientRecordsForID = new ArrayList<PatientRecords>();
@@ -325,12 +329,14 @@ public class DataRequestService {
         for (PatientRecords record : patientRecords) {
             
             if (record.getPatientID().equals(patientID)) {
+                
                 if (record.getTimeStamp().compareTo(request.getDateFrom()) >= 0){
                     if(record.getTimeStamp().compareTo(request.getDateTo()) <= 0) {
                         for(String hiT : hiTypesRequest) {
                             if (record.getHiType().equals(hiT)) {
                                 for (String dep : departmentsRequest) {
                                     if(record.getDepartment().equals(dep)) {
+                                        
                                         System.out.println("please let me sleep now");
                                         System.out.println(record);
                                         patientRecordsForID.add(record);
@@ -370,11 +376,7 @@ public class DataRequestService {
 
     }
 
-    private String[] splitToArray(String strArr) {
-        strArr = strArr.substring(1, strArr.length() - 1);
-        String[] strs = strArr.split(",");
-        return strs;
-    }
+    
 
     private DataRequestHIPRequest makeSubset(DataRequestHIPRequest request, CMConsentObject consentObject) {
         if (request.getDateFrom().compareTo(consentObject.getPermission().getDateRange().getFrom()) < 0) {
@@ -384,33 +386,45 @@ public class DataRequestService {
             request.setDateTo(consentObject.getPermission().getDateRange().getTo());
         }
         String[] requestHiTypes = request.getHiType();
-        String finalHiTypes = "[";
+        System.out.println("Request Hi Types");
+        System.out.println(Arrays.toString(requestHiTypes));
+        System.out.println("Consent Hi Types");
+        System.out.println(Arrays.toString(consentObject.getHiType()));
+        ArrayList<String> finalHiTypes = new ArrayList<String>();
         for(String requestHiType : requestHiTypes) {
             for (String consentHiType : consentObject.getHiType()) {
+                // System.out.println("Reqqqqqqqqqqq");
+                // System.out.println(requestHiType);
+                // System.out.println("COnnnnnnnnnnnnnnn");
+                // System.out.println(consentHiType);
                 if (consentHiType.equals(requestHiType)) {
-                    finalHiTypes += consentHiType;
-                    finalHiTypes += ",";
+                    // System.out.println("COnnnnnnnnnnnnnnn");
+                    finalHiTypes.add(consentHiType);
                     break;
                 }
             }
         }
-        // finalHiTypes += "]";
-        // request.setHiType(finalHiTypes);
-
+        String[] finalHiTypesArr = new String[finalHiTypes.size()];
+        finalHiTypesArr = finalHiTypes.toArray(finalHiTypesArr);
+        request.setHiType(finalHiTypesArr);
         String[] requestDepartments = request.getDepartments();
-        String finalDepartments = "[";
+        ArrayList<String> finalDepartments = new ArrayList<String>();
         for(String requestDepartment : requestDepartments) {
             for (String consentDepartment : consentObject.getDepartments()) {
                 if (consentDepartment.equals(requestDepartment)) {
-                    finalHiTypes += consentDepartment;
-                    finalHiTypes += ",";
+                    
+                    finalDepartments.add(consentDepartment);
                     break;
                 }
             }
         }
-        // finalHiTypes += "]";
-        // request.setHiType(finalDepartments);
-
+        String[] finalDepartmentsArr = new String[finalDepartments.size()];
+        finalDepartmentsArr = finalDepartments.toArray(finalDepartmentsArr);
+        request.setDepartments(finalDepartmentsArr);
+        System.out.println("reeeeeeeee");
+        System.out.println(Arrays.toString(request.getHiType()));
+        System.out.println("COnnnnnnnn");
+        System.out.println(Arrays.toString(request.getDepartments()));
         return request;
     }
 

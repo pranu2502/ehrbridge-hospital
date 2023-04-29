@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ehrbridge.hospital.dto.hospital.FetchAllHospitalResponse;
 import com.ehrbridge.hospital.dto.hospital.Hospital;
+import com.ehrbridge.hospital.dto.hospital.PatientServerHospitalsResponse;
 import com.ehrbridge.hospital.service.HospitalService;
 
 @CrossOrigin
@@ -22,9 +23,9 @@ public class HospitalController {
     private HospitalService hospitalService;
 
     @GetMapping("/fetch-all")
-    public ResponseEntity<FetchAllHospitalResponse> fetchAllHospitals(){
+    public ResponseEntity<PatientServerHospitalsResponse> fetchAllHospitals(@RequestParam String ehrbID){
         System.out.println("yayyy");
-        return hospitalService.fetchHospitals();
+        return hospitalService.fetchHospitals(ehrbID);
     }
     
     @GetMapping("/fetch")
