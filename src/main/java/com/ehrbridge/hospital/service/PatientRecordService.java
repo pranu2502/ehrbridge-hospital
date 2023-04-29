@@ -165,14 +165,14 @@ public class PatientRecordService {
 
     public ResponseEntity<List<PatientRecords>> getPatientRecordsByID(GetPatientRecordRequest request) {
 
-        List<PatientRecords> patientRecords = patientRecordsRepository.findAll();
-        List<PatientRecords> toBeRemoved = new ArrayList<PatientRecords>();
-        for (PatientRecords record : patientRecords) {
-            if (record.getPatientID().equals(request.getPatientIDString()) == false) {
-                toBeRemoved.add(record);
-            }
-        }
-        patientRecords.removeAll(toBeRemoved);
+        List<PatientRecords> patientRecords = patientRecordsRepository.findPatientRecordsByPatientID(request.getPatientIDString()).orElseThrow();
+//        List<PatientRecords> toBeRemoved = new ArrayList<PatientRecords>();
+//        for (PatientRecords record : patientRecords) {
+//            if (record.getPatientID().equals(request.getPatientIDString()) == false) {
+//                toBeRemoved.add(record);
+//            }
+//        }
+//        patientRecords.removeAll(toBeRemoved);
         return new ResponseEntity<List<PatientRecords>>(patientRecords, HttpStatusCode.valueOf(200));
 
 
