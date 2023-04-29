@@ -14,9 +14,12 @@ import com.ehrbridge.hospital.dto.Patient.GetPatientRecordResponse;
 import com.ehrbridge.hospital.repository.DoctorRepository;
 import com.ehrbridge.hospital.repository.PatientRecordsRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import com.ehrbridge.hospital.entity.Patient;
 import com.ehrbridge.hospital.repository.PatientRepository;
@@ -36,6 +39,12 @@ public class PatientRecordService {
     private final PatientRepository patientRepository;
     private final PatientRecordsRepository patientRecordsRepository;
     private final DoctorRepository doctorRepository;
+
+    @Autowired
+    private RestTemplate rest;
+
+    @Autowired
+    private HttpHeaders headers;
 
     public ResponseEntity<PatientRegisterResponse> RegisterPatient(PatientRegisterRequest request){
         var patient = Patient.builder()

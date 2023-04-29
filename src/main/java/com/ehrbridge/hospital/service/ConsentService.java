@@ -161,6 +161,7 @@ public class ConsentService {
             var existingConsentObject = consentObjectHIPRepository.findByTxnID(request.getTxnID());
             if(existingConsentObject.isPresent()){
                 existingConsentObject.get().setSigned_consent_object(request.getSigned_consent_obj());
+                existingConsentObject.get().setPublic_key(request.getPublic_key());
                 consentObjectHIPRepository.save(existingConsentObject.get());
             }else{
                 consentObjectHIPRepository.save(consentObjectHIP);
