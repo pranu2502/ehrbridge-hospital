@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.ehrbridge.hospital.dto.Patient.*;
 import com.ehrbridge.hospital.dto.auth.patient.PatientRegisterRequest;
 import com.ehrbridge.hospital.dto.auth.patient.PatientRegisterResponse;
+import com.ehrbridge.hospital.dto.hospital.Discovery;
 import com.ehrbridge.hospital.entity.Doctor;
 import com.ehrbridge.hospital.entity.PatientRecords;
 import com.ehrbridge.hospital.dto.Patient.GetPatientRecordRequest;
@@ -15,7 +16,10 @@ import com.ehrbridge.hospital.repository.DoctorRepository;
 import com.ehrbridge.hospital.repository.PatientRecordsRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,9 @@ import org.springframework.web.client.RestTemplate;
 
 import com.ehrbridge.hospital.entity.Patient;
 import com.ehrbridge.hospital.repository.PatientRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
 import java.util.List;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +47,18 @@ public class PatientRecordService {
     private final PatientRecordsRepository patientRecordsRepository;
     private final DoctorRepository doctorRepository;
 
+    @Value("${ehrbridge.gateway.host}")
+    private String GATEWAY_HOST;
+
+    @Value("${ehrbridge.gateway.notify-visit.endpoint}")
+    private String GATEWAY_NOTIFY_ENDPOINT;
+
+    @Value("${hospital.id}")
+    private String hospitalID;
+
+    @Value("${hospital.name}")
+    private String hospitalName; 
+
     @Autowired
     private RestTemplate rest;
 
@@ -56,7 +75,27 @@ public class PatientRecordService {
                 .gender(request.getGender())
                 .ehrbID(request.getEhrbID())
                 .build();
-
+        var visit = Discovery.builder()
+                             .ehrbID(request.getEhrbID())
+                             .hospitalID(hospitalID)
+                             .hospitalName(hospitalName)
+                             .timestamp(new Date())
+                             .build();
+                             
+        String REQ_ENDPOINT = GATEWAY_HOST + GATEWAY_NOTIFY_ENDPOINT;
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        try {
+            String jsonConsentObj = ow.writeValueAsString(visit);
+            HttpEntity<String> requestEntity = new HttpEntity<String>(jsonConsentObj, headers);
+            System.out.println(requestEntity.getHeaders());
+            ResponseEntity<String> responseEntity = rest.exchange(REQ_ENDPOINT, HttpMethod.POST, requestEntity, String.class);
+            if(responseEntity.getStatusCode().value() != 200){
+                return new ResponseEntity<PatientRegisterResponse>(PatientRegisterResponse.builder().msg("Unable to Notify Patient Visit to Patient Server through GATEWAY").build(), HttpStatusCode.valueOf(501));
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        }
         try {
             patientRepository.save(patient);
         } catch (Exception e) {

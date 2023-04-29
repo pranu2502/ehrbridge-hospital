@@ -1,9 +1,9 @@
 server:
-  port: 8082
+  port: 8081
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/hospitaldbhip
+    url: jdbc:mysql://localhost:3306/hospitaldb
     username: user1
     password: user1@sql
     
@@ -16,12 +16,14 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
 hospital:
-  id: af913885-d38b-46a7-a586-f2224ea80c2a
+  id: 423ebbee-c3da-4aef-b816-f240c9ab8520
+  name: JUPITER_HOSPITAL_PUNE
+
 ehrbridge:
   app:
     jwtSecret: 655468576D5A7133743677397A24432646294A404E635266556A586E32723575
   gateway:
-    apiKey: ESgIEQY888Q2hdQ0T53FQircyv7wQetY
+    apiKey: 2ofe8za3O882vAO41sQ0XRFQsKFcMPE7
     host: http://localhost:8080
     consent-request:
       endpoint: /api/v1/consent/generate
@@ -31,3 +33,5 @@ ehrbridge:
       endpoint: /api/v1/hospitals/fetch-all
     hospital-fetch-id:
       endpoint: /api/v1/hospitals/fetch
+    notify-visit:
+      endpoint: /api/v1/hospitals/notify-visit
