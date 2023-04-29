@@ -1,6 +1,9 @@
 package com.ehrbridge.hospital.service;
 
 import com.ehrbridge.hospital.dto.dataRequest.hiu.FetchReceivedRecordsResponse;
+import com.ehrbridge.hospital.config.RSACryptHelper;
+import com.ehrbridge.hospital.dto.dataRequest.hip.DataRequestHIPResponse;
+import com.ehrbridge.hospital.dto.dataRequest.hiu.EncryptedPatientDataObject;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLRequest;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveDataCallbackURLResponse;
 import com.ehrbridge.hospital.dto.dataRequest.hiu.ReceiveRecordResponse;
@@ -24,7 +27,13 @@ public class DataReceiveService {
 
     private final ReceivedDataRecordsRepository ReceivedDataRecordsRepository;
 
-    public ResponseEntity<ReceiveDataCallbackURLResponse> receiveDataHIU (ReceiveDataCallbackURLRequest request) {
+    public ResponseEntity<ReceiveDataCallbackURLResponse> receiveDataHIU (EncryptedPatientDataObject encryptedPatientDataObject) {
+        System.out.println("HEHREHREHRHEHREHRHE");
+        System.out.println(encryptedPatientDataObject);
+        ReceiveDataCallbackURLRequest request = RSACryptHelper.decryptCallbackData(encryptedPatientDataObject);
+        if (request == null) {
+            return new ResponseEntity<ReceiveDataCallbackURLResponse>(ReceiveDataCallbackURLResponse.builder().message("Failed to decrypt data").build(), HttpStatusCode.valueOf(500));
+        }
         for (PatientRecords record : request.getPatientRecords()) {
             var receivedPatientRecord  = ReceivedPatientRecords.builder()
                     .bp(record.getBp())

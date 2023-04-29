@@ -11,24 +11,34 @@ import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RSAHelperConfig {
     public static RSAPublicKey RSA_PUB;
     public static RSAPrivateKey RSA_PRIV;
+    public static SecretKey AES_SECRET;
     public static void generateAndSetKeys() {
         try {
             KeyPairGenerator gen = KeyPairGenerator.getInstance("RSA");
-            gen.initialize(2048);
+            gen.initialize(4096);
             KeyPair keyPair = gen.generateKeyPair();
             RSAPublicKey pubKey = (RSAPublicKey) keyPair.getPublic();
             RSAPrivateKey prvKey = (RSAPrivateKey) keyPair.getPrivate();
+            
+            KeyGenerator generator = KeyGenerator.getInstance("AES");
+            generator.init(128); // The AES key size in number of bits
+            SecretKey secKey = generator.generateKey();
 
             RSA_PUB = pubKey;
             RSA_PRIV = prvKey;
+            AES_SECRET = secKey;
         } catch (NoSuchAlgorithmException e) {
-            System.out.println("[ConsentManager] ERR: failed to generate Keys - NoSuchAlgorithmException");
+            System.out.println("[Hospital] ERR: failed to generate Keys - NoSuchAlgorithmException");
         }
     }
 
@@ -43,7 +53,7 @@ public class RSAHelperConfig {
             String base64encoded = new String(Base64.getEncoder().encode(data));
             return base64encoded;
         } catch (Exception e) {
-            System.out.println("[ConsentManager] ERR: failed to generate key PEM");
+            System.out.println("[Hospital] ERR: failed to generate key PEM");
         }
 
         return "";
@@ -60,7 +70,7 @@ public class RSAHelperConfig {
             String base64encoded = new String(Base64.getEncoder().encode(data));
             return base64encoded;
         } catch (Exception e) {
-            System.out.println("[ConsentManager] ERR: failed to generate key PEM");
+            System.out.println("[Hospital] ERR: failed to generate key PEM");
         }
 
         return "";
@@ -73,7 +83,7 @@ public class RSAHelperConfig {
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
         } catch (Exception e) {
-            System.out.println("[ConsentManager] ERR: failed to parse key PEM");
+            System.out.println("[Hospital] ERR: failed to parse key PEM");
         }
 
         return null;
@@ -86,9 +96,28 @@ public class RSAHelperConfig {
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
             return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
         } catch (Exception e) {
-            System.out.println("[ConsentManager] ERR: failed to parse key PEM");
+            System.out.println("[Hospital] ERR: failed to parse key PEM");
         }
 
         return null;
+    }
+
+    public static String aesKeyToString(SecretKey secretKey) {
+        String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+        return encodedKey;
+    }
+
+    public static SecretKey aesBAToKey(byte[] decodedKey) {
+        return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+    }
+
+    public static SecretKey aesStringToKey(String keyString) {
+        byte[] decodedKey = Base64.getDecoder().decode(keyString);
+        SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES"); 
+        return originalKey;
+    }
+
+    public static byte[] aesKeytoBA(SecretKey secretKey) {
+        return secretKey.getEncoded();
     }
 }

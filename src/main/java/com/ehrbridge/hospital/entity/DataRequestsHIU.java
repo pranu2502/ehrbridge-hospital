@@ -1,6 +1,7 @@
 package com.ehrbridge.hospital.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,4 +26,6 @@ public class DataRequestsHIU {
     private Date dateTo;
     private String hiType;
     private String[] departments;
+    @Column(columnDefinition = "TEXT")
+    private String rsa_pubkey;
 }
