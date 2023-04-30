@@ -27,6 +27,12 @@ public class HospitalController {
         System.out.println("yayyy");
         return hospitalService.fetchHospitals(ehrbID);
     }
+
+    @GetMapping("/fetch-all-hospitals")
+    public ResponseEntity<FetchAllHospitalResponse> fetchAllHospitals(){
+        System.out.println("yayyy");
+        return hospitalService.fetchAllHospitals();
+    }
     
     @GetMapping("/fetch")
     public ResponseEntity<Hospital> fetchHospital(@RequestParam String hospitalID){

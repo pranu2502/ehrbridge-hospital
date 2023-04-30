@@ -81,7 +81,7 @@ public class PatientRecordService {
                              .hospitalName(hospitalName)
                              .timestamp(new Date())
                              .build();
-                             
+        System.out.println(visit);
         String REQ_ENDPOINT = GATEWAY_HOST + GATEWAY_NOTIFY_ENDPOINT;
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         try {

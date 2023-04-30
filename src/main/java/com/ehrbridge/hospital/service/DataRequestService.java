@@ -291,7 +291,7 @@ public class DataRequestService {
         if (cmConsentObject == null) return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent object verification failed").build(), HttpStatusCode.valueOf(403));
         
         // Check if consent object is valid
-        if (!cmConsentObject.getConsent_status().equals("GRANTED")) return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent has been declined or revoked").build(), HttpStatusCode.valueOf(403));
+        if (!cmConsentObject.getConsent_status().equals("ACCEPTED")) return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent has been declined or revoked").build(), HttpStatusCode.valueOf(403));
         if (cmConsentObject.getPermission().getConsent_validity().compareTo(new Date()) < 0) return new ResponseEntity<DataRequestHIPResponse>(DataRequestHIPResponse.builder().message("Consent has expired").build(), HttpStatusCode.valueOf(403));
 
         System.out.println(cmConsentObject.getPermission().getConsent_validity());

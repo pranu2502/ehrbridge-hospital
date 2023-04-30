@@ -27,8 +27,8 @@ public class DataReceiveController {
     }
 
     @GetMapping("/fetch-records")
-    public ResponseEntity<FetchReceivedRecordsResponse> fetchRecords(@RequestParam String patientID){
-        return dataReceiveService.fetchAllRecordsByPatientID(patientID);
+    public ResponseEntity<FetchReceivedRecordsResponse> fetchRecords(@RequestParam String ehrbID){
+        return dataReceiveService.fetchAllRecordsByPatientID(ehrbID);
     }
 
     @GetMapping("/fetch-records-by-id")

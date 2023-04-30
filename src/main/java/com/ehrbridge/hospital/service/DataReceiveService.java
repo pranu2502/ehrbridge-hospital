@@ -59,9 +59,9 @@ public class DataReceiveService {
 
     } 
 
-    public ResponseEntity<FetchReceivedRecordsResponse> fetchAllRecordsByPatientID(String patientID){
+    public ResponseEntity<FetchReceivedRecordsResponse> fetchAllRecordsByPatientID(String ehrbID){
         try {
-            List<ReceivedPatientRecords> patientRecords = ReceivedDataRecordsRepository.findAllByPatientID(patientID);
+            List<ReceivedPatientRecords> patientRecords = ReceivedDataRecordsRepository.findAllByEhrbID(ehrbID);
             return new ResponseEntity<FetchReceivedRecordsResponse>(FetchReceivedRecordsResponse.builder().patientData(patientRecords).build(), HttpStatusCode.valueOf(200));
         } catch (Exception e) {
             // TODO: handle exception

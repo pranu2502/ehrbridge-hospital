@@ -27,11 +27,14 @@ public class HospitalService {
     @Value("${ehrbridge.gateway.host}")
     private String GATEWAY_HOST;
 
-    @Value("${ehrbridge.gateway.hospital-fetch-all.endpoint}")
-    private String GATEWAY_HOSPITAL_ALL_REQ_ENDPOINT;
+    @Value("${ehrbridge.gateway.hospital-fetch-patient-id.endpoint}")
+    private String GATEWAY_HOSPITAL_PATIENT_ID_ENDPOINT;
 
     @Value("${ehrbridge.gateway.hospital-fetch-id.endpoint}")
     private String GATEWAY_HOSPITAL_ID_REQ_ENDPOINT;
+
+    @Value("${ehrbridge.gateway.hospital-fetch-all.endpoint}")
+    private String GATEWAY_HOSPITAL_ALL_ENDPOINT;
 
     @Autowired
     private RestTemplate rest;
@@ -40,7 +43,7 @@ public class HospitalService {
     private HttpHeaders headers;
 
     public ResponseEntity<PatientServerHospitalsResponse> fetchHospitals(String ehrbID){
-        String GATEWAY_REQ_ENDPOINT = GATEWAY_HOST + GATEWAY_HOSPITAL_ALL_REQ_ENDPOINT + "?ehrbID=" + ehrbID;
+        String GATEWAY_REQ_ENDPOINT = GATEWAY_HOST + GATEWAY_HOSPITAL_PATIENT_ID_ENDPOINT + "?ehrbID=" + ehrbID;
         try {
             // HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
             ResponseEntity<PatientServerHospitalsResponse> responseEntity = rest.exchange(GATEWAY_REQ_ENDPOINT, HttpMethod.GET, new HttpEntity<>(headers), PatientServerHospitalsResponse.class);
@@ -68,5 +71,21 @@ public class HospitalService {
             e.printStackTrace();
         }
         return new ResponseEntity<Hospital>(Hospital.builder().build(), HttpStatusCode.valueOf(501));
+    }
+
+    public ResponseEntity<FetchAllHospitalResponse> fetchAllHospitals() {
+        String GATEWAY_REQ_ENDPOINT = GATEWAY_HOST + GATEWAY_HOSPITAL_ALL_ENDPOINT;
+        try {
+            // HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
+
+            ResponseEntity<FetchAllHospitalResponse> responseEntity = rest.exchange(GATEWAY_REQ_ENDPOINT , HttpMethod.GET, new HttpEntity<>(headers), FetchAllHospitalResponse.class);
+            if(responseEntity.getStatusCode().value() == 200){
+                return responseEntity;
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        }
+        return new ResponseEntity<FetchAllHospitalResponse>(FetchAllHospitalResponse.builder().build(), HttpStatusCode.valueOf(501));
     }
 }

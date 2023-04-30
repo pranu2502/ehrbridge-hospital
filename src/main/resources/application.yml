@@ -3,7 +3,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/hospitaldb
+    url: jdbc:mysql://localhost:3306/hospitaldbhiu
     username: user1
     password: user1@sql
     
@@ -16,20 +16,22 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
 hospital:
-  id: 423ebbee-c3da-4aef-b816-f240c9ab8520
-  name: JUPITER_HOSPITAL_PUNE
+  id: 8538cb68-3781-4ffa-869a-a5d600a6dcab
+  name: hiu
 
 ehrbridge:
   app:
     jwtSecret: 655468576D5A7133743677397A24432646294A404E635266556A586E32723575
   gateway:
-    apiKey: 2ofe8za3O882vAO41sQ0XRFQsKFcMPE7
+    apiKey: 209mwqtVao8vVMVyqjTeE4DGtyzuGJcd
     host: http://localhost:8080
     consent-request:
       endpoint: /api/v1/consent/generate
     data-request:
       endpoint: /api/v1/data/request
     hospital-fetch-all:
+      endpoint: /api/v1/hospitals/fetch-all-hospitals
+    hospital-fetch-patient-id:
       endpoint: /api/v1/hospitals/fetch-all
     hospital-fetch-id:
       endpoint: /api/v1/hospitals/fetch

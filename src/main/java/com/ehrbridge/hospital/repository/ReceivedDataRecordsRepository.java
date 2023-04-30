@@ -12,4 +12,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReceivedDataRecordsRepository extends JpaRepository<ReceivedPatientRecords, String> {
     List<ReceivedPatientRecords> findAllByPatientID(String patientID);
+
+    List<ReceivedPatientRecords> findAllByEhrbID(String ehrbID);
 }
